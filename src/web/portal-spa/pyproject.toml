@@ -1,0 +1,10 @@
+[tool.semantic_release]
+version = "0.1.0"
+version_variable = "pyproject.toml:version"
+branch = "main"
+hvcs = "gitlab"
+hvcs_domain = "git.viettel.vn:8180"
+commit_subject = "chore: Bump version {version}"
+commit_message = ""
+upload_to_repository = false
+build_command = ""

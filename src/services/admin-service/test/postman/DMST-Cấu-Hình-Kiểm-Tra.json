@@ -1,0 +1,282 @@
+{
+  "info": {
+    "name": "DMST-Cấu-Hình-Kiểm-Tra",
+    "description": null,
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "warehouse-service",
+      "item": [
+        {
+          "name": "cấu-hình-kiểm-tra",
+          "item": [
+            {
+              "name": "API tạo mới ",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "disabled": false,
+                    "type": "default"
+                  }
+                ],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{base_url_warehouse_srv}}/data-check-configs",
+                  "protocol": "",
+                  "host": [
+                    "{{base_url_warehouse_srv}}"
+                  ],
+                  "path": [
+                    "data-check-configs"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"Name\": \"Cấu hình kiểm tra Kho\",\r\n  \"Code\": \"CFG_KHO_001\",\r\n  \"SchemaSubjectID\": 1,\r\n  \"JsonSchema\": \"{\\\"type\\\":\\\"object\\\"}\",\r\n  \"Type\": 1,\r\n  \"Version\": 1,\r\n  \"Status\": 1,\r\n  \"ValidFrom\": \"2024-01-01T00:00:00Z\",\r\n  \"ValidTo\": \"2025-01-01T00:00:00Z\",\r\n  \"Description\": \"Mô tả cấu hình\",\r\n  \"IsCheckData\": true,\r\n  \"OptionFieldCheck\": 1,\r\n  \"IsDuyetNenTang\": false,\r\n  \"NifiXml\": \"<xml>...</xml>\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "API Update Config By ID",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "disabled": false,
+                    "type": "default"
+                  }
+                ],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{base_url_warehouse_srv}}/data-check-configs/1",
+                  "protocol": "",
+                  "host": [
+                    "{{base_url_warehouse_srv}}"
+                  ],
+                  "path": [
+                    "data-check-configs",
+                    "1"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"Name\": \"Cấu hình kiểm tra Kho (Update)\",\r\n  \"Status\": 2,\r\n  \"IsCheckData\": false\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "API DeleteConfig",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "disabled": false,
+                    "type": "default"
+                  }
+                ],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{base_url_warehouse_srv}}/data-check-configs/1",
+                  "protocol": "",
+                  "host": [
+                    "{{base_url_warehouse_srv}}"
+                  ],
+                  "path": [
+                    "data-check-configs",
+                    "1"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              }
+            },
+            {
+              "name": "API Get Config By ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "disabled": false,
+                    "type": "default"
+                  }
+                ],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{base_url_warehouse_srv}}/data-check-configs/1",
+                  "protocol": "",
+                  "host": [
+                    "{{base_url_warehouse_srv}}"
+                  ],
+                  "path": [
+                    "data-check-configs",
+                    "1"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              }
+            },
+            {
+              "name": "API get danh sách",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "disabled": false,
+                    "type": "default"
+                  }
+                ],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{base_url_warehouse_srv}}/data-check-configs?Page=1&PageSize=10&Keyword=CFG_KHO_001&SchemaSubjectID=1",
+                  "protocol": "",
+                  "host": [
+                    "{{base_url_warehouse_srv}}"
+                  ],
+                  "path": [
+                    "data-check-configs?Page=1&PageSize=10&Keyword=CFG_KHO_001&SchemaSubjectID=1"
+                  ],
+                  "query": [
+                    {
+                      "key": "Page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "PageSize",
+                      "value": "10"
+                    },
+                    {
+                      "key": "Keyword",
+                      "value": "CFG_KHO_001"
+                    },
+                    {
+                      "key": "SchemaSubjectID",
+                      "value": "1"
+                    }
+                  ],
+                  "variable": []
+                }
+              }
+            },
+            {
+              "name": "API check Exists by SchemaSubjectId",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "disabled": false,
+                    "type": "default"
+                  }
+                ],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{base_url_warehouse_srv}}/data-check-configs/check-exists/1",
+                  "protocol": "",
+                  "host": [
+                    "{{base_url_warehouse_srv}}"
+                  ],
+                  "path": [
+                    "data-check-configs",
+                    "check-exists",
+                    "1"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              }
+            },
+            {
+              "name": "API Get Config By SyncID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "disabled": false,
+                    "type": "default"
+                  }
+                ],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{base_url_warehouse_srv}}/data-check-configs/sync?syncId=1",
+                  "protocol": "",
+                  "host": [
+                    "{{base_url_warehouse_srv}}"
+                  ],
+                  "path": [
+                    "data-check-configs",
+                    "sync?syncId=1"
+                  ],
+                  "query": [
+                    {
+                      "key": "syncId",
+                      "value": "1"
+                    }
+                  ],
+                  "variable": []
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url_warehouse_srv",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}

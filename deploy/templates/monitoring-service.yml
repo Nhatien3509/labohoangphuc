@@ -1,0 +1,25 @@
+services:
+  thcs-monitoring-service:
+    container_name: thcs-monitoring-service
+    image: ${IMAGE_THCS_MONITORING_SERVICE:-thcs-monitoring-service:latest}
+    build:
+      context: ../../src/services/monitoring-service
+      dockerfile: ../../../deploy/docker/monitoring-service/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.monitoring-service
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    networks:
+      - thcs-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+networks:
+  thcs-net:
+    name: thcs-net
+    external: true

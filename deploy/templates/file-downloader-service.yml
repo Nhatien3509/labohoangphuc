@@ -1,0 +1,21 @@
+services:
+  thcs-file-downloader-service:
+    container_name: thcs-file-downloader-service
+    image: ${IMAGE_THCS_FILE_DOWNLOADER_SERVICE:-thcs-file-downloader-service:latest}
+    build:
+      context: ../../src/services/file-downloader-service
+      dockerfile: ../../../deploy/docker/file-downloader-service/Dockerfile
+    restart: always
+    env_file:
+      - .env.file-downloader-service
+    networks:
+      - thcs-net
+      - integration_network
+
+networks:
+  thcs-net:
+    name: thcs-net
+    external: true
+  integration_network:
+    name: dmst_integration_network
+    external: true

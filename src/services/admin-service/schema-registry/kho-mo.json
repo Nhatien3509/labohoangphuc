@@ -1,0 +1,53 @@
+{
+    "type": "record",
+    "name": "KhoMoApiResponse",
+    "namespace": "dmst.integration.khomo",
+    "doc": "Wrapper response từ API kho mở - 21042026",
+    "fields": [
+        {
+            "name": "id",
+            "type": [
+                "null",
+                "string"
+            ],
+            "default": null,
+            "doc": "ID batch (Go có thể generate UUID hoặc dùng traceId)"
+        },
+        {
+            "name": "succeeded",
+            "type": "boolean"
+        },
+        {
+            "name": "errors",
+            "type": [
+                "null",
+                {
+                    "type": "array",
+                    "items": "string"
+                }
+            ],
+            "default": null
+        },
+        {
+            "name": "traceId",
+            "type": "string"
+        },
+        {
+            "name": "page",
+            "type": "int"
+        },
+        {
+            "name": "size",
+            "type": "int"
+        },
+        {
+            "name": "count",
+            "type": "int"
+        },
+        {
+            "name": "dataNguonDuLieu",
+            "type": "string",
+            "doc": "RAW JSON string của toàn bộ object 'data' (items + meta) → lưu JSONB Postgres"
+        }
+    ]
+}

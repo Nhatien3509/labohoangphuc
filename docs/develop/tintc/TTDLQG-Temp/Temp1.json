@@ -1,0 +1,155 @@
+{
+	"nguonDuLieu": {
+		"idNguonDuLieu": "G03",
+		"tenNguonDuLieu": "Bộ Giáo dục và Đào tạo",
+		"maLoaiDuLieu": "DL001",
+		"tenLoaiDuLieu": "Dữ liệu giáo dục"
+	},
+	"trangThaiDuLieu": {
+		"moTa": {
+			"lyDoCapNhat": null,
+			"chiTietLyDoCapNhat": null
+		},
+		"phienBan": 1,
+		"ngayHieuLuc": "2020-09-04T00:00:00",
+		"thoiGianCapNhat": "2026-05-31T12:27:33"
+	},
+	"duLieuTiepNhan": {
+		"maDinhDanhDuLieu": "02c4a0ec-f3ee-4b4b-819f-228c4aee03d6",
+		"tieuDe": "Danh sách trường tiểu học tỉnh Nghệ An năm học 2019-2020",
+		"moTa": "Danh sách trường tiểu học tỉnh Nghệ An năm học 2019-2020",
+		"ngonNgu": "vi",
+		"phamViThoiGian": "2020-09-04/2023-04-10T11:13:42.976893",
+		"tanSuatCapNhat": "R/P2M",
+		"trangDichVu": null,
+		"ngayPhatHanh": "2025-08-02T15:03:08",
+		"ngayCapNhat": "2026-05-31T12:27:33",
+		"ngayPhatHanhChinhThuc": "2020-09-04T00:00:00",
+		"thayThe": null,
+		"trangThai": "Hiện hành",
+		"sieuDuLieuDinhKem": [],
+		"tuKhoa": [
+			"Nghệ an",
+			"tiểu học",
+			"2020"
+		],
+		"dauMoiLienLac": {
+			"ten": "Cục CNTT - Bộ GD&ĐT",
+			"email": "",
+			"dienThoai": "0982467073",
+			"duongDan": "https://moet.gov.vn/",
+			"diaChi": "Bộ Giáo dục & Đào tạo"
+		},
+		"phanPhoi": [
+			{
+				"id": "85fadbae-1af8-4636-b88b-2b1d86935124",
+				"phienBan": 0,
+				"tieuDe": "Sở GDĐT Nghệ An _TH.xlsx",
+				"tenTep": "Sở GDĐT Nghệ An _TH.xlsx",
+				"moTa": null,
+				"duongDanTruyCap": "https://data.gov.vn/root/file_gov/s-gdt-ngh-an-_th.xlsx",
+				"duongDanTaiXuong": "dataset/25/08/02/Fh-6ZcNjCCRXSLhJYtV3FTDVXGcxXBGgC9wa9bCvXY4_-150308449.xlsx",
+				"dinhDang": "XLSX",
+				"kieuTepTin": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				"ngayCapNhat": "2020-09-04T00:00:00",
+				"ngayPhatHanh": "2020-09-04T00:00:00",
+				"kichThuocByte": 52986,
+				"maKiemTra": {
+					"thuatToan": "SHA256",
+					"giaTri": "no-checksum"
+				},
+				"dinhDangNen": "zip",
+				"dinhDangDongGoi": "zip",
+				"giayPhep": [
+					{
+						"tieuDe": "cc-by-sa",
+						"moTa": "Giấy phép Creative Commons Cho phép chia sẻ có ghi nguồn.",
+						"duongDan": "http://www.opendefinition.org/licenses/cc-by-sa",
+						"nguoiTao": "Creative Commons",
+						"ngayCapPhep": "2025-08-02"
+					}
+				],
+				"quyenSoHuu": [
+					{
+						"tieuDe": "Bản quyền nhà nước",
+						"moTa": "Thuộc quyền quản lý bởi GSO.",
+						"duongDan": "https://data.gov.vn/rights/gso",
+						"nguoiTao": "GSO",
+						"ngayCapPhep": "2023-01-01T00:00:00Z",
+						"nhanHieu": "Công khai sử dụng"
+					}
+				],
+				"tuanThuTieuChuan": {
+					"duongDan": "https://www.w3.org/TR/vocab-dcat-3/",
+					"tieuDe": "DCAT v3",
+					"moTa": "Chuẩn DCAT 3 dùng để mô tả dữ liệu mở.",
+					"nhaCungCap": "W3C",
+					"ngayCapPhep": "2022-11-01T00:00:00Z",
+					"maDinhDanh": "DCAT3"
+				}
+			}
+		],
+		"nhaCungCap": {
+			"ten": "Bộ Giáo dục & Đào tạo",
+			"loaiHinh": "organization",
+			"email": "",
+			"trangChu": "https://dulieu.itrithuc.vn/uploads/group/2018-08-13-010828.3824552017-12-30-081545.841749quoc-huy2x.png",
+			"hinhAnh": "Bộ Giáo dục và Đào tạo là cơ quan của Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam, thực hiện chức năng quản lý nhà nước đối với giáo dục mầm non, giáo dục phổ thông, trung cấp sư phạm, cao đẳng sư phạm, giáo dục đại học và các cơ sở giáo dục khác."
+		},
+		"phamViKhongGian": {
+			"nhanHieu": "Việt Nam",
+			"maDinhDanh": "https://data.gov.vn/location/vietnam",
+			"diaChi": "Toàn quốc",
+			"khopChinhXac": "https://www.wikidata.org/entity/Q881",
+			"hinhHoc": {
+				"kieuHinh": "polygon",
+				"toaDo": [
+					{
+						"hoanhDo": 105.854,
+						"tungDo": 21.028
+					},
+					{
+						"hoanhDo": 108.202,
+						"tungDo": 16.047
+					},
+					{
+						"hoanhDo": 106.66,
+						"tungDo": 10.762
+					}
+				]
+			}
+		},
+		"chuDe": [
+			"giao-duc"
+		],
+		"giayPhep": [],
+		"quyenSoHuu": [
+			{
+				"tieuDe": "Bản quyền nhà nước",
+				"moTa": "Thuộc quyền quản lý bởi GSO.",
+				"duongDan": "https://data.gov.vn/rights/gso",
+				"nguoiTao": "GSO",
+				"ngayCapPhep": "2023-01-01T00:00:00Z",
+				"nhanHieu": "Công khai sử dụng"
+			}
+		],
+		"tuanThuTieuChuan": {
+			"duongDan": "https://www.w3.org/TR/vocab-dcat-3/",
+			"tieuDe": "DCAT v3",
+			"moTa": "Chuẩn DCAT 3 dùng để mô tả dữ liệu mở.",
+			"nhaCungCap": "W3C",
+			"ngayCapPhep": "2022-11-01T00:00:00Z",
+			"maDinhDanh": "DCAT3"
+		},
+		"chuTheTao": {
+			"ten": "Cục CNTT - Bộ GD&ĐT",
+			"loaiHinh": "organization",
+			"email": "",
+			"trangChu": "http://www.opendefinition.org/licenses/cc-by-sa",
+			"hinhAnh": ""
+		},
+		"danhSachDongGop": null,
+		"thanhPhan": [],
+		"duocThamChieuBoi": null
+	}
+}

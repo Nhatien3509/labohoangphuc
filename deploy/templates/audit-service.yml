@@ -1,0 +1,25 @@
+services:
+  thcs-audit-service:
+    container_name: thcs-audit-service
+    image: ${IMAGE_THCS_AUDIT_SERVICE:-thcs-audit-service:latest}
+    build:
+      context: ../../src/services/audit-service
+      dockerfile: ../../../deploy/docker/audit-service/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.audit-service
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    networks:
+      - thcs-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+networks:
+  thcs-net:
+    name: thcs-net
+    external: true

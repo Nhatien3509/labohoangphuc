@@ -1,0 +1,100 @@
+{
+	"NguonDuLieu": {
+		"IdNguonDuLieu": "G02",
+		"TenNguonDuLieu": "Bộ Công Thương",
+		"MaLoaiDuLieu": "G02_001",
+		"TenLoaiDuLieu": "CSDL Cơ khí chế tạo"
+	},
+	"TrangThaiDuLieu": {
+		"PhienBan": 1,
+		"NgayHieuLuc": "2026-06-05T06:56:05",
+		"ThoiGianCapNhat": "2026-06-05T06:56:05"
+	},
+	"DuLieuTiepNhan": {
+		"IdBanGhi": "5af0512b-75ac-4f66-828d-1ff1b96bc029",
+		"MaDinhDanhDuLieu": "943265da-f273-4068-8edb-62d36af931f2",
+		"TieuDe": "Bộ dữ liệu G02_001",
+		"MoTa": "Dữ liệu mô phỏng — CSDL Cơ khí chế tạo",
+		"TanSuatCapNhat": "R/P1Y",
+		"NgayCapNhat": "2026-06-05T06:56:05",
+		"TrangThai": "Hiệu lực",
+		"DuLieuBoSung": {
+			"TenDoanhNghiep": "Cty Phat Trien Cong Nghiep 3479",
+			"MaSoThue": "8243000035",
+			"LoaiHinhDoanhNghiep": "Hop tac xa",
+			"DiaChiTruSo": "So 834, Duong minhdao, Q.9",
+			"TinhThanh": "Ho Chi Minh",
+			"NguoiDaiDien": null,
+			"SoDienThoai": "0242069649",
+			"Email": null,
+			"LinhVucSanXuat": "hungkhanh_47691",
+			"SanPhamChinh": [
+				"phatoanh",
+				"nambinh",
+				"vantan"
+			],
+			"NangLucSanXuat": "vankhanh_31667",
+			"CongSuatThietKe": 2614.165748547864,
+			"DonViTinhCongSuat": null,
+			"TyLeNoiDiaHoa": 6.171332534942616,
+			"SoLaoDong": 73,
+			"VonDauTu": 356299.318973639,
+			"ThiTruongXuatKhau": [
+				"ichan",
+				"namdao"
+			],
+			"NamThanhLap": 2023,
+			"TrangThaiHoatDong": null
+		}
+	}
+}
+
+
+1f9db50f-f0a5-4dec-a80a-92584ceb781a
+{
+	"NguonDuLieu": {
+		"IdNguonDuLieu": "G02",
+		"TenNguonDuLieu": "Bộ Công Thương",
+		"MaLoaiDuLieu": "G02_001",
+		"TenLoaiDuLieu": "CSDL Cơ khí chế tạo"
+	},
+	"TrangThaiDuLieu": {
+		"PhienBan": 1,
+		"NgayHieuLuc": "2026-06-05T06:56:05",
+		"ThoiGianCapNhat": "2026-06-05T06:56:05"
+	},
+	"DuLieuTiepNhan": {
+		"IdBanGhi": "c15229e0-7fed-403a-b017-47989d3d202d",
+		"MaDinhDanhDuLieu": "943265da-f273-4068-8edb-62d36af931f2",
+		"TieuDe": "Bộ dữ liệu G02_001",
+		"MoTa": "Dữ liệu mô phỏng — CSDL Cơ khí chế tạo",
+		"TanSuatCapNhat": "R/P1Y",
+		"NgayCapNhat": "2026-06-05T06:56:05",
+		"TrangThai": "Hiệu lực",
+		"DuLieuBoSung": {
+			"TenDoanhNghiep": "Cty Phat Trien Dich Vu 4028",
+			"MaSoThue": "8541818975",
+			"LoaiHinhDoanhNghiep": null,
+			"DiaChiTruSo": "So 596, Duong daoich, Q.12",
+			"TinhThanh": null,
+			"NguoiDaiDien": null,
+			"SoDienThoai": "0645292753",
+			"Email": null,
+			"LinhVucSanXuat": "tanvan_51427",
+			"SanPhamChinh": null,
+			"NangLucSanXuat": "binhem_52336",
+			"CongSuatThietKe": 5034.557655560587,
+			"DonViTinhCongSuat": "Ha Noi",
+			"TyLeNoiDiaHoa": null,
+			"SoLaoDong": 2245,
+			"VonDauTu": 655669.9326190413,
+			"ThiTruongXuatKhau": [
+				"quocich",
+				"emyen",
+				"anbinh"
+			],
+			"NamThanhLap": null,
+			"TrangThaiHoatDong": "Tam ngung"
+		}
+	}
+}

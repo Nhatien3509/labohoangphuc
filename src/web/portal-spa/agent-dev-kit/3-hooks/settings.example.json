@@ -1,0 +1,37 @@
+{
+  "_comment": "L3 · Copy phần 'hooks' này vào .claude/settings.json để kích hoạt. Sửa path cho khớp vị trí thật của script.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/src/web/portal-spa/agent-dev-kit/3-hooks/PreToolUse.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/src/web/portal-spa/agent-dev-kit/3-hooks/PostToolUse.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/src/web/portal-spa/agent-dev-kit/3-hooks/SessionStart.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

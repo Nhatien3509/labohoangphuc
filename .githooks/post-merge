@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# Sau git pull/merge: tự đảm bảo core.hooksPath=.githooks (đề phòng bị xoá/đổi).
+# Idempotent + im lặng. Tự chứa, không phụ thuộc script trong FE.
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -z "$ROOT" ] && exit 0
+if [ "$(git config core.hooksPath 2>/dev/null)" != ".githooks" ]; then
+  git config core.hooksPath .githooks
+fi

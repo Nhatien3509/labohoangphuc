@@ -1,0 +1,33 @@
+services:
+  thcs-integration-service:
+    container_name: thcs-integration-service
+    image: ${IMAGE_THCS_INTEGRATION_SERVICE:-thcs-integration-service:latest}
+    build:
+      context: ../../src/services/integration-service
+      dockerfile: ../../../deploy/docker/integration-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${INGEST_PORT:-9181}:8081"
+    env_file:
+      - .env.integration-service
+    networks:
+      - thcs-net
+      - local-net
+      - dmst-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+networks:
+  thcs-net:
+    name: thcs-net
+    external: true
+  local-net:
+    name: cts_dev_network
+    external: true
+  dmst-net:
+    name: dmst_integration_network
+    external: true

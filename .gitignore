@@ -1,0 +1,60 @@
+# Ignore .github directory
+.github/
+# Ignore .vscode directory
+.vscode/
+# Ignore Metals (Scala LSP) files
+.metals/
+# Ignore all image archives in docs/fujitsu-setup/Images (files too large for git)
+docs/fujitsu-setup/Images/*
+!docs/fujitsu-setup/Images/.gitkeep
+
+dmst/
+!src/**/dmst/
+CLAUDE.MD
+CLAUDE.md
+.vscode/
+.cursor/
+.github/
+.windsurfrules
+AGENTS.md
+.claude/settings.local.json
+.claude/rules/
+.claude/commands/
+.windsurf/rules/
+.codex/rules/
+.codex/commands/
+.antigravity/rules/
+.antigravity/commands/
+ANTIGRAVITY.md
+.cursor/rules/
+.cursor/commands/
+.kilo/
+kilo.jsonc
+.github/instructions/
+.claude/
+
+# Ignore node_modules directory
+node_modules/
+# Ignore dist directory
+dist/
+# Ignore .env files
+.env
+
+.agent/*
+*.log
+
+.mcp.json
+settings.json
+.windsurf/*
+
+server.exe
+mcp.json
+ai-standards
+src/stream-processing/flink-jobs/jobs/generic-stream-processor/target/
+src/stream-processing/flink-jobs/jobs/generic-stream-processor-test/target/
+src/services/mock_datasource/scripts/
+
+# convention-scan local hook temp file
+.convention-scan.staged.txt
+
+GenSchemaDev

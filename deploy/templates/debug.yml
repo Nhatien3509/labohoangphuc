@@ -1,0 +1,50 @@
+# =============================================================================
+# Debug Toolbox - Kiá»ƒm tra káº¿t ná»‘i tá»« bÃªn trong Docker network
+# =============================================================================
+# Cháº¡y toolbox container cÃ¹ng network vá»›i cÃ¡c service cáº§n debug
+# =============================================================================
+
+services:
+  toolbox:
+    container_name: debug-toolbox
+    build:
+      context: ../docker/debug
+      dockerfile: Dockerfile
+    
+    # â”€â”€ Biáº¿n mÃ´i trÆ°á»ng cho check-all â”€â”€
+    environment:
+      # PostgreSQL
+      PG_HOST: ${PG_HOST:-portal-dev-sqlserver}
+      PG_PORT: ${PG_PORT:-1433}
+      PG_USER: ${PG_USER:-sa}
+      PG_DB: ${PG_DB:-H04.Portal.DB}
+      PGPASSWORD: ${PGPASSWORD:-}
+
+      # Redis
+      REDIS_HOST: ${REDIS_HOST:-be-dev-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
+      # HTTP endpoints (space-separated)
+      HTTP_ENDPOINTS: ${HTTP_ENDPOINTS:-http://umbraco-portal-app:8080/umbraco}
+
+      # Custom host:port pairs (space-separated)
+      CHECK_HOSTS: ${CHECK_HOSTS:-portal-dev-minio:9000}
+
+    # â”€â”€ Káº¿t ná»‘i vÃ o network cá»§a service cáº§n debug â”€â”€
+    networks:
+      - portal-network
+
+    # KhÃ´ng restart, chá»‰ cháº¡y 1 láº§n
+    restart: "no"
+
+    # stdin_open + tty Ä‘á»ƒ cÃ³ thá»ƒ interactive shell
+    stdin_open: true
+    tty: true
+
+# Káº¿t ná»‘i vÃ o network Ä‘Ã£ tá»“n táº¡i (external)
+# Náº¿u network chÆ°a tá»“n táº¡i, Ä‘á»•i external: false
+networks:
+  portal-network:
+    external: true
+    name: umbraco-portal-network

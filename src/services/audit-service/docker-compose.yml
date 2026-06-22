@@ -1,0 +1,22 @@
+version: '3.8'
+
+networks:
+  dmst_thcs-net:
+    name: dmst_thcs-net
+    external: true
+
+services:
+  audit-service:
+    build: .
+    container_name: audit-service
+    ports:
+      - "${APP_PORT:-8081}:8080"
+    env_file:
+      - .env
+    environment:
+      SIGNOZ_URL: "${SIGNOZ_URL:-http://signoz-frontend:3301}"
+      SIGNOZ_EMAIL: "${SIGNOZ_EMAIL:-admin@dmst.local}"
+      SIGNOZ_PASSWORD: "${SIGNOZ_PASSWORD:-Abcd@123456}"
+    networks:
+      - dmst_thcs-net
+    restart: unless-stopped

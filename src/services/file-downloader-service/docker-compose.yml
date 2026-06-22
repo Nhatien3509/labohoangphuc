@@ -1,0 +1,14 @@
+networks:
+  dmst_thcs-net:
+    name: dmst_thcs-net
+    external: true
+
+services:
+  file-downloader-services:
+    build: .
+    container_name: file-downloader-services
+    env_file:
+      - .env.dev
+    networks:
+      - dmst_thcs-net
+    restart: unless-stopped

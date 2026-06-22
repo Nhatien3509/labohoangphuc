@@ -1,0 +1,6 @@
+name: generic-stream-processor
+parallelism: 4
+checkpoint_ms: 60000
+checkpoint_dir: file:///opt/flink/ha-storage/checkpoints
+entryClass: com.gtsc.dmst.flink.GenericStreamProcessor
+jar: target/generic-stream-processor-1.0.0.jar

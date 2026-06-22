@@ -1,0 +1,21 @@
+version: '3.8'
+
+networks:
+  dmst_thcs-net:
+    name: dmst_thcs-net
+    external: true
+
+services:
+  admin-services:
+    build: .
+    container_name: admin-services
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    env_file:
+      - .env
+    environment:
+      # Internal broker addresses — service must be on dmst_thcs-net
+      KAFKA_BROKERS: "dmst-kafka-1:9092,dmst-kafka-2:9092,dmst-kafka-3:9092"
+    networks:
+      - dmst_thcs-net
+    restart: unless-stopped

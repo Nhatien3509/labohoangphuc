@@ -1,0 +1,333 @@
+<mxfile host="65bd71144e" pages="9">
+    <diagram id="Simplified" name="Mô hình rút gọn (gộp HA)">
+        <mxGraphModel dx="1887" dy="874" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="2200" background="#ffffff" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="s_title" value="MÔ HÌNH CÀI ĐẶT, TRIỂN KHAI (RÚT GỌN) — HỆ THỐNG TÍCH HỢP, CHIA SẺ DỮ LIỆU TTST" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=15;fontStyle=1;fontFamily=Times New Roman;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="10" width="1574" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_subtitle" value="Gộp các cụm HA thành 1 component · Tổng: 40 VM · 172 vCPU · 484 GB RAM · ~28.7 TB Storage" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=2;fontFamily=Times New Roman;fontColor=#666;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="40" width="1574" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_ext_src" value="Hệ Thống Nguồn&lt;br&gt;[External System]&lt;br&gt;Kho DL Mo&lt;br&gt;② PULL ~200 API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;strokeWidth=2;fontSize=10;fontStyle=1;fontFamily=Times New Roman;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="440" y="70" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_ext_dest" value="Hệ Thống Đích&lt;br&gt;[External System]&lt;br&gt;QLDT-SK · San DL&lt;br&gt;④ Nhan DL chia se" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;strokeWidth=2;fontSize=10;fontStyle=1;fontFamily=Times New Roman;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="610" y="70" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_ext_sso" value="HE THONG XAC THUC&#xa;[External System]&#xa;DMDC SSO&#xa;⑦ OIDC + PKCE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;strokeWidth=2;fontSize=10;fontStyle=1;fontFamily=Times New Roman;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="940" y="70" width="160" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_boundary" value="" style="swimlane;startSize=30;fillColor=none;strokeColor=#23445D;fontStyle=1;fontSize=13;strokeWidth=2;fontColor=#23445D;fontFamily=Times New Roman;align=left;spacingLeft=20;swimlaneLine=0;shadow=1;whiteSpace=wrap;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="190" width="1840" height="930" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_dmz" value="DMZ Zone  [5 VM]" style="swimlane;startSize=24;fillColor=#FCE4EC;strokeColor=#b85450;fontStyle=1;fontSize=12;fontFamily=Times New Roman;align=left;spacingLeft=20;strokeWidth=1;shadow=1;dashed=1;" parent="s_boundary" vertex="1">
+                    <mxGeometry x="40" y="50" width="480" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_dmz_note" value="HTTPS :443 → HAProxy L4 → Kong L7 (JWT/ACL/Rate-limit)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#b85450;align=center;fontStyle=2;" parent="s_dmz" vertex="1">
+                    <mxGeometry x="10" y="30" width="460" height="14" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_haproxy" value="haproxy-01 · haproxy-02&#xa;[2 VM: HAProxy L4 · Keepalived VIP]&#xa;TCP LB · SR-IOV&#xa;(2×2vCPU · 2×4GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0d4f5;strokeColor=#7b5ea7;fontSize=12;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_dmz" vertex="1">
+                    <mxGeometry x="120" y="60" width="240" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_kong" value="kong-01 · kong-02 · kong-03&#xa;[3 VM: Kong OSS · API Gateway L7]&#xa;SSL · JWT · ACL · Rate-limit&#xa;(3×4vCPU · 3×8GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#1168BD;strokeWidth=2;fontSize=12;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_dmz" vertex="1">
+                    <mxGeometry x="120" y="170" width="240" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_e_ha_kong" value="" style="html=1;strokeColor=#333;strokeWidth=1;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;" parent="s_dmz" source="s_haproxy" target="s_kong" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_gwdb" value="Gateway DB Zone  [2 VM]" style="swimlane;startSize=24;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=12;fontFamily=Times New Roman;align=left;spacingLeft=20;strokeWidth=1;shadow=1;dashed=1;" parent="s_boundary" vertex="1">
+                    <mxGeometry x="570" y="50" width="250" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_gwdb_note" value="Firewall: chỉ Kong truy cập [5432]&#xa;Kong Lua shared memory&#xa;poll PG 3s background&#xa;per-request: 0 PG query" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontFamily=Times New Roman;fontColor=#b85450;align=center;fontStyle=2;whiteSpace=wrap;" parent="s_gwdb" vertex="1">
+                    <mxGeometry x="10" y="30" width="230" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_kongdb" value="kong-db-01 · kong-db-02&#xa;[2 VM: PostgreSQL 18]&#xa;Streaming Replication&#xa;(2×2vCPU · 2×4GB)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=12;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_gwdb" vertex="1">
+                    <mxGeometry x="40" y="90" width="155" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_proczone" value="Stream Processing  [4 VM]" style="swimlane;startSize=24;fillColor=#FFF8E1;strokeColor=#e65100;fontStyle=1;fontSize=12;fontFamily=Times New Roman;align=left;spacingLeft=20;strokeWidth=1;shadow=1;dashed=1;" parent="s_boundary" vertex="1">
+                    <mxGeometry x="1500" y="50" width="300" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_flink_note" value="Kafka → Flink → Kho · CEP · Exactly-once · Checkpointing" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#0D47A1;align=center;fontStyle=2;whiteSpace=wrap;" parent="s_proczone" vertex="1">
+                    <mxGeometry x="52.5" y="30" width="215" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_flink_jm" value="flink-jm&#xa;[1 VM: Flink JobManager]&#xa;Điều phối ETL jobs · (4vCPU · 8GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#0D47A1;strokeWidth=2;fontSize=12;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_proczone" vertex="1">
+                    <mxGeometry x="40" y="70" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_flink_tm" value="flink-tm-1 · flink-tm-2 · flink-tm-3&#xa;[3 VM: TaskManager · 6 slots/VM]&#xa;(3×4vCPU · 3×16GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#0D47A1;fontSize=12;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_proczone" vertex="1">
+                    <mxGeometry x="40" y="170" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_appzone" value="Application Zone  [22 VM]" style="swimlane;startSize=24;fillColor=#f0edf8;strokeColor=#1168BD;fontStyle=1;fontSize=12;fontFamily=Times New Roman;align=left;spacingLeft=20;strokeWidth=1;shadow=1;dashed=1;" parent="s_boundary" vertex="1">
+                    <mxGeometry x="150" y="410" width="1320" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_fe" value="fe-node-01 · fe-node-02&#xa;[2 VM: Portal SPA]&#xa;Lit/Vue · Web Portal&#xa;(2×2vCPU · 2×2GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#1168BD;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_appzone" vertex="1">
+                    <mxGeometry x="30" y="40" width="120" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_audit" value="audit-01 · audit-02&#xa;[2 VM: audit-svc]&#xa;Audit Trail · Immutable log&#xa;(2×2vCPU · 2×4GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2e7d32;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_appzone" vertex="1">
+                    <mxGeometry x="170" y="40" width="130" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_masking" value="masking-01 · masking-02&#xa;[2 VM: masking-svc]&#xa;K-anonymity · Tokenization&#xa;(2×2vCPU · 2×4GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#AD1457;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_appzone" vertex="1">
+                    <mxGeometry x="320" y="40" width="140" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_admin" value="admin-01 · admin-02&#xa;[2 VM: 5 svc gộp]&#xa;admin · provision · metadata&#xa;report · monitor&#xa;(2×4vCPU · 2×8GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#7B1FA2;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_appzone" vertex="1">
+                    <mxGeometry x="480" y="40" width="150" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_share" value="share-01 · share-02 · share-03&#xa;[3 VM: sharing-svc]&#xa;Chia sẻ DL · API Publish&#xa;(3×4vCPU · 3×8GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#e65100;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_appzone" vertex="1">
+                    <mxGeometry x="670" y="40" width="140" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_ingest" value="ingest-01 · ingest-02 · ingest-03 · ingest-04&#xa;[4 VM: integration-svc]&#xa;8 vCPU · 16 GB · 100 GB&#xa;PULL metadata · Schema validate&#xa;Redis pre-filter · Kafka produce" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2e7d32;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_appzone" vertex="1">
+                    <mxGeometry x="830" y="40" width="220" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_fd" value="fd-01 · fd-02 · fd-03 · fd-04&#xa;[4 VM: file-downloader-svc]&#xa;8 vCPU · 16 GB · 100 GB&#xa;Consume FILE_DOWNLOAD_REQUEST&#xa;io.Pipe → Kong → Knox → HDFS&#xa;Retry 3 lần · checkSum SHA256" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#1B5E20;fontSize=11;fontFamily=Times New Roman;verticalAlign=middle;align=center;spacing=4;fontStyle=0;" parent="s_appzone" vertex="1">
+                    <mxGeometry x="1070" y="40" width="220" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_datazone" value="Data Zone  [11 VM]" style="swimlane;startSize=24;fillColor=#EDF7ED;strokeColor=#2e7d32;fontStyle=1;fontSize=12;fontFamily=Times New Roman;align=left;spacingLeft=20;strokeWidth=1;shadow=1;dashed=1;" parent="s_boundary" vertex="1">
+                    <mxGeometry x="150" y="690" width="1150" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_pg" value="pg-master · pg-replica-1 · pg-replica-2&#xa;[3 VM: PostgreSQL 18 Patroni]&#xa;app_db · 9 schemas · pgBackRest&#xa;(3×8vCPU · 3×32GB · 3×3TB)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_datazone" vertex="1">
+                    <mxGeometry x="290" y="60" width="240" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_redis" value="redis-master · redis-replica-1 · redis-replica-2&#xa;[3 VM: Redis Sentinel]&#xa;session · cache · rate-limit · temp-data&#xa;(3×4vCPU · 3×8GB)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#E8F5E9;strokeColor=#82b366;strokeWidth=2;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_datazone" vertex="1">
+                    <mxGeometry x="30" y="60" width="220" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_minio" value="minio-1 · minio-2 · minio-3&#xa;[3 VM: MinIO Erasure Coding]&#xa;raw-data · exports · pg-backup · attachments&#xa;(3×4vCPU · 3×16GB · 3×4TB)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#E3F2FD;strokeColor=#1168BD;strokeWidth=2;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_datazone" vertex="1">
+                    <mxGeometry x="580" y="60" width="210" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_vault" value="vault-01 · vault-02&#xa;[2 VM: Secret Manager HA · Raft]&#xa;Transit · KV2 · PKI · DB engine&#xa;(2×4vCPU · 2×8GB · 2×100GB)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_datazone" vertex="1">
+                    <mxGeometry x="835" y="60" width="210" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_msgzone" value="Streaming Pipeline  [4 VM]" style="swimlane;startSize=24;fillColor=#FFFDE7;strokeColor=#d6b656;fontStyle=1;fontSize=12;fontFamily=Times New Roman;align=left;spacingLeft=20;strokeWidth=1;shadow=1;dashed=1;" parent="s_boundary" vertex="1">
+                    <mxGeometry x="910" y="50" width="350" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_msg_note" value="INGEST_xxx (DL → Flink → Kho) + AUDIT (nhật ký từ Kong + services)&#xa;Kafka Nền tảng ↔ Kafka Cloudera (Kho) qua MirrorMaker 2" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontFamily=Times New Roman;fontColor=light-dark(#54524e, #6d5100);align=center;fontStyle=2;" parent="s_msgzone" vertex="1">
+                    <mxGeometry x="15" y="28" width="320" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_kafka_mgmt" value="kafka-mgmt-01&#xa;[1 VM: Management]&#xa;Schema Registry · Kafka UI · Kafka Connect (JDBC/CDC)&#xa;(4vCPU · 8GB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#d6b656;strokeWidth=2;fontSize=12;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_msgzone" vertex="1">
+                    <mxGeometry x="70" y="70" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_kafka" value="kafka-01 · kafka-02 · kafka-03&#xa;[3 VM: Broker KRaft]&#xa;(3×8vCPU · 3×32GB · 3×2TB NVMe)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;fontSize=12;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_msgzone" vertex="1">
+                    <mxGeometry x="70" y="170" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_obszone" value="Observability Zone  [SigNoz HA]" style="swimlane;startSize=24;fillColor=#FFF3E0;strokeColor=#e65100;fontStyle=1;fontSize=12;fontFamily=Times New Roman;dashed=1;align=left;spacingLeft=20;" parent="s_boundary" vertex="1">
+                    <mxGeometry x="1320" y="690" width="240" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_signoz" value="signoz-01 (Primary) · signoz-02 (Standby)&lt;br&gt;[2 VM: SigNoz OSS · ClickHouse HA]&lt;br&gt;Logs + Metrics + Traces — OTel native&lt;br&gt;[2× (8vCPU · 16GB · 500GB SSD · RAID-1)]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#e65100;strokeWidth=2;fontSize=11;fontFamily=Times New Roman;fontStyle=0;align=center;" parent="s_obszone" vertex="1">
+                    <mxGeometry x="10" y="40" width="220" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_obs_note" value="OTel agent trên mỗi VM → SigNoz · Không dùng Data Zone — SigNoz tự chứa storage" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=light-dark(#000000, #fb7b35);align=center;fontStyle=2;whiteSpace=wrap;" parent="s_obszone" vertex="1">
+                    <mxGeometry x="10" y="150" width="220" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_e_kong_gwdb" value="config poll 3s background [5432]" style="html=1;strokeColor=#b85450;strokeWidth=1.5;endArrow=block;endFill=1;startArrow=block;startFill=0;fontSize=9;fontFamily=Times New Roman;fontColor=#b85450;labelBackgroundColor=#FFF;dashed=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="s_boundary" source="s_kong" target="s_gwdb" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_e_kong_portal" value="③ serve SPA static [HTTP]" style="html=1;strokeColor=#7B1FA2;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#7B1FA2;labelBackgroundColor=#FFF;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="s_boundary" source="s_haproxy" target="s_fe" edge="1">
+                    <mxGeometry x="0.027" y="-20" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="80" y="145"/>
+                            <mxPoint x="80" y="510"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kong_audit" value="⑤ /api/v1/audit" style="html=1;strokeColor=#2e7d32;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#2e7d32;labelBackgroundColor=#FFF;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="s_boundary" source="s_kong" target="s_audit" edge="1">
+                    <mxGeometry x="-0.15" y="-3" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kong_masking" value="⑥ /api/v1/masking" style="html=1;strokeColor=#AD1457;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#AD1457;labelBackgroundColor=#FFF;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="s_boundary" source="s_kong" target="s_masking" edge="1">
+                    <mxGeometry x="-0.1" y="-2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kong_admin" value="③ /api/v1/admin" style="html=1;strokeColor=#7B1FA2;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#7B1FA2;labelBackgroundColor=#FFF;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="s_boundary" source="s_kong" target="s_admin" edge="1">
+                    <mxGeometry x="0.0513" y="2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                        <mxPoint x="630" y="450" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kong_share" value="④ /api/v1/share" style="html=1;strokeColor=#e65100;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#e65100;labelBackgroundColor=#FFF;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="s_boundary" source="s_kong" target="s_share" edge="1">
+                    <mxGeometry x="0.1" y="3" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kong_int" value="① /api/v1/integration" style="html=1;strokeColor=#0050ef;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#0050ef;labelBackgroundColor=#FFF;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="s_boundary" source="s_kong" target="s_ingest" edge="1">
+                    <mxGeometry x="0.15" y="5" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_app_pg" value="R/W [5432] — all services → app_db" style="html=1;strokeColor=#b85450;strokeWidth=2;endArrow=block;endFill=1;startArrow=block;startFill=0;fontSize=9;fontFamily=Times New Roman;fontColor=#b85450;labelBackgroundColor=#FFF;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="s_boundary" target="s_pg" edge="1">
+                    <mxGeometry x="0.0149" y="-15" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                        <mxPoint x="560" y="580" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_app_redis" value="cache [6379]" style="html=1;strokeColor=#82b366;strokeWidth=1.5;endArrow=block;endFill=1;startArrow=block;startFill=0;fontSize=9;fontFamily=Times New Roman;fontColor=#3a7d00;labelBackgroundColor=#FFF;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="s_boundary" target="s_redis" edge="1">
+                    <mxGeometry x="-0.2283" y="-15" relative="1" as="geometry">
+                        <mxPoint x="1" as="offset"/>
+                        <mxPoint x="290" y="580" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_app_minio" value="S3 [9000]" style="html=1;strokeColor=#23445D;strokeWidth=1.5;endArrow=block;endFill=1;startArrow=block;startFill=0;fontSize=9;fontFamily=Times New Roman;fontColor=#23445D;labelBackgroundColor=#FFF;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="s_boundary" target="s_minio" edge="1">
+                    <mxGeometry x="-0.3237" y="-15" relative="1" as="geometry">
+                        <mxPoint x="1" as="offset"/>
+                        <mxPoint x="835" y="580" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_app_vault" value="secrets + crypto [8200 TLS]" style="html=1;strokeColor=#d79b00;strokeWidth=1.5;endArrow=block;endFill=1;startArrow=block;startFill=0;fontSize=9;fontFamily=Times New Roman;fontColor=#d79b00;labelBackgroundColor=#FFF;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="s_boundary" target="s_vault" edge="1">
+                    <mxGeometry x="0.1321" y="-15" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                        <mxPoint x="1090" y="580" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kafka_flink" value="①② consume → dedup (phienBan + checkSum)" style="html=1;strokeColor=#F57F17;strokeWidth=2;endArrow=block;endFill=1;startArrow=block;startFill=0;fontSize=9;fontFamily=Times New Roman;fontColor=#F57F17;labelBackgroundColor=#FFF;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" parent="s_boundary" source="s_kafka" target="s_flink_tm" edge="1">
+                    <mxGeometry x="-0.027" y="10" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_audit_kafka" value="⑤ consume audit events" style="html=1;strokeColor=#2e7d32;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#2e7d32;labelBackgroundColor=#FFF;dashed=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.712;entryY=0.012;entryDx=0;entryDy=0;entryPerimeter=0;edgeStyle=orthogonalEdgeStyle;" parent="s_boundary" source="s_kafka" target="s_appzone" edge="1">
+                    <mxGeometry x="-0.5276" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kong_kafka_log" value="⑤ Kafka Log plugin → topic AUDIT" style="html=1;strokeColor=#2e7d32;strokeWidth=1.5;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#2e7d32;labelBackgroundColor=#FFF;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="s_boundary" source="s_kong" target="s_kafka" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="900" y="310" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kong_redis" value="rate-limit [6379]" style="html=1;strokeColor=#82b366;strokeWidth=1.5;endArrow=block;endFill=1;startArrow=block;startFill=0;fontSize=9;fontFamily=Times New Roman;fontColor=#3a7d00;labelBackgroundColor=#FFF;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;edgeStyle=orthogonalEdgeStyle;" parent="s_boundary" source="s_kong" target="s_redis" edge="1">
+                    <mxGeometry x="0.3534" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="120" y="260"/>
+                            <mxPoint x="120" y="805"/>
+                        </Array>
+                        <mxPoint x="120" y="250" as="sourcePoint"/>
+                        <mxPoint x="140" y="815" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kafkaconnect_pull" value="② PULL: admin-svc (Go) → Kong outbound [HTTP]" style="html=1;strokeColor=#F57F17;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#F57F17;labelBackgroundColor=#FFF;dashed=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" parent="s_boundary" source="s_admin" target="s_kong" edge="1">
+                    <mxGeometry x="0.04" relative="1" as="geometry">
+                        <mxPoint x="400" y="240" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="800" y="510"/>
+                            <mxPoint x="800" y="280"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_pull_outbound" value="② PULL: Kong → Kho DL Mo [TLS outbound]" style="html=1;strokeColor=#F57F17;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#F57F17;labelBackgroundColor=#FFF;dashed=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="s_boundary" source="s_dmz" target="s_ext_src" edge="1">
+                    <mxGeometry x="-0.3333" y="-10" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_src_dmz" value="① PUSH: QLHD-ST [mTLS/HTTPS]" style="html=1;strokeColor=#0050ef;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#0050ef;labelBackgroundColor=#FFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeColor=#0050ef;fontColor=#0050ef;" parent="1" source="s_qlhdst" target="s_dmz" edge="1">
+                    <mxGeometry x="-0.4359" y="-8" relative="1" as="geometry">
+                        <mxPoint x="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_user_dmz" value="③ Quan tri [HTTPS]" style="html=1;strokeColor=#7B1FA2;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#7B1FA2;labelBackgroundColor=#FFF;exitX=0.5;exitY=0.963;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitPerimeter=0;" parent="1" source="OpUDoiJF8xPjyOVkRuAh-1" target="s_dmz" edge="1">
+                    <mxGeometry x="-0.2909" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_share_dest" value="④ Chia sẻ DL [API/Webhook]" style="html=1;strokeColor=#e65100;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#e65100;labelBackgroundColor=#FFF;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="s_dmz" target="s_ext_dest" edge="1">
+                    <mxGeometry x="0.2597" y="4" relative="1" as="geometry">
+                        <mxPoint x="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kong_sso" value="⑦ Login SSO [OIDC] + Sync users + DMDC" style="html=1;strokeColor=#7B1FA2;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#7B1FA2;labelBackgroundColor=#FFF;dashed=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0;exitDx=0;exitDy=0;" parent="1" source="s_dmz" target="s_ext_sso" edge="1">
+                    <mxGeometry x="0.1333" y="-14" relative="1" as="geometry">
+                        <mxPoint y="1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_kho" value="KHO DỮ LIỆU TTST&lt;br&gt;[External System: Cloudera CDP]&lt;br&gt;HDFS · Hive · Knox&lt;br&gt;①② Metadata + File binary + ④ Chia sẻ + ⑥ Masking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F57F17;strokeWidth=2;fontSize=11;fontFamily=Times New Roman;fontStyle=1;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="1920" y="600" width="360" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_e_flink_kho" value="①② Nạp metadata → Kho [Knox/WebHDFS]" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#F57F17;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#F57F17;labelBackgroundColor=#FFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="s_proczone" target="s_kho" edge="1">
+                    <mxGeometry x="-0.347" y="10" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_kho_share" value="④ Chia sẻ DL [Query ↔ Response]" style="html=1;strokeColor=#e65100;strokeWidth=2;endArrow=block;endFill=1;startArrow=block;startFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#e65100;labelBackgroundColor=#FFF;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="s_kho" target="s_appzone" edge="1">
+                    <mxGeometry x="0.1579" y="-10" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                        <mxPoint x="1700" y="660" as="sourcePoint"/>
+                        <mxPoint x="1510" y="660" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_leg" value="" style="group;fillColor=#FAFAFA;strokeColor=#CCCCCC;opacity=70;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="40" y="1480" width="1574" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_leg_title" value="&lt;b&gt;Luồng chính:&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;fontSize=12;fontFamily=Times New Roman;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="5" width="80" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_lf1" value="① Tích hợp (metadata):  Nguồn → HAProxy → Kong (JWT/ACL) → integration-svc → Kafka INGEST_OPENDATA_METADATA_* → Flink (dedup) → Knox → Kho HDFS/Hive" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#0050ef;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="28" width="1000" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_lf2" value="&lt;b&gt;③ Quản trị:&lt;/b&gt; Browser → HAProxy → Kong (JWT) → Portal SPA → admin-svc → PostgreSQL | Response ngược lại" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#333;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="68" width="1000" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_lf3" value="&lt;b&gt;④ Chia sẻ:&lt;/b&gt; HT Đích → HAProxy → Kong (JWT/ACL) → sharing-svc → Kho (Query) | Response ngược lại" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#e65100;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="88" width="1000" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_lf4" value="&lt;b&gt;⑤ Audit:&lt;/b&gt; Kong Kafka Log (tự động) + Service audit.Produce() → topic AUDIT → audit-svc → PostgreSQL immutable log" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#2e7d32;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="108" width="1000" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_lf5" value="&lt;b&gt;⑥ Masking:&lt;/b&gt; Kong → masking-svc → Kho gốc (đọc) → K-anonymity / Tokenization → Kho giả lập (ghi) → Kong → caller" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#AD1457;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="128" width="1000" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_lf6" value="&lt;b&gt;⑦ Xác thực:&lt;/b&gt; Browser → HAProxy → Kong (OIDC redirect) → DMDC SSO → JWT | Sync: admin-svc → DMDC API → PostgreSQL" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#7B1FA2;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="148" width="1000" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_leg_conn" value="&lt;b&gt;Kết nối:&lt;/b&gt;  ── API sync (xanh) | ── Kafka async (vàng) | ── DB 5432 (đỏ) | ── Cache 6379 (xanh lá) | ── S3 9000 (xanh đậm) | ── Cloudera (cam) | ── Audit (xanh lá đậm) | ── Masking (hồng) | ── SSO (tím)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#333;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="175" width="1550" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_lf1b" value="② Tải file:  Flink (checkSum thay đổi) → FILE_DOWNLOAD_REQUEST → file-downloader-svc → Kong (get-link + download) → Knox → Kho HDFS/Ozone" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;fontFamily=Times New Roman;fontColor=#0050ef;align=left;" parent="s_leg" vertex="1">
+                    <mxGeometry x="10" y="48" width="1000" height="18" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_e_int_kafka" value="① produce INGEST_OPENDATA_METADATA_*" style="html=1;strokeColor=#0050ef;strokeWidth=2;endArrow=block;endFill=1;fontSize=9;fontFamily=Times New Roman;fontColor=#0050ef;labelBackgroundColor=#FFF;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="1" source="s_ingest" target="s_kafka" edge="1">
+                    <mxGeometry x="-0.2" y="-55" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_qlhdst" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;Hệ Thống Nguồn&lt;/span&gt;&lt;br&gt;[Internal System]&lt;br&gt;QLHD-ST&lt;br&gt;PUSH 3 use case" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#AD1457;strokeWidth=2;fontSize=10;fontStyle=1;fontFamily=Times New Roman;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="70" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="OpUDoiJF8xPjyOVkRuAh-1" value="Quản trị viên&lt;br&gt;[Person]&lt;br&gt;Cán bộ vận hành TTST" style="shape=mxgraph.c4.person2;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=11;fontFamily=Times New Roman;align=center;verticalLabelPosition=middle;verticalAlign=middle;labelPosition=center;spacingLeft=0;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="70" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_e_fd_kafka" value="② consume FILE_DOWNLOAD_REQUEST" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#d6b656;strokeWidth=2;fontSize=9;fontFamily=Times New Roman;dashed=1;dashPattern=4 3;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s_kafka" target="s_fd" edge="1">
+                    <mxGeometry x="-0.4001" y="-20" relative="1" as="geometry">
+                        <mxPoint x="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_fd_kong" value="② get-link + download (qua Kong)" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#2e7d32;strokeWidth=2;fontSize=9;fontFamily=Times New Roman;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;" parent="1" source="s_fd" target="s_kong" edge="1">
+                    <mxGeometry x="-0.1445" y="4" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_fd_kho" value="② Stream file → Knox → HDFS/Ozone" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#3f51b5;strokeWidth=2;fontSize=9;fontFamily=Times New Roman;exitX=1;exitY=0.5;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s_fd" target="s_kho" edge="1">
+                    <mxGeometry x="-0.4725" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_fd_result" value="② produce FILE_DOWNLOADED_RESULT" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#d6b656;strokeWidth=2;fontSize=9;fontFamily=Times New Roman;dashed=1;dashPattern=4 3;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.75;exitY=0;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s_fd" target="s_kafka" edge="1">
+                    <mxGeometry x="0.0133" y="-15" relative="1" as="geometry">
+                        <mxPoint y="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="s_e_flink_req" value="② produce FILE_DOWNLOAD_REQUEST" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;strokeColor=#d6b656;strokeWidth=1;fontSize=9;fontFamily=Times New Roman;dashed=1;dashPattern=4 3;edgeStyle=orthogonalEdgeStyle;" parent="1" target="s_kafka" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="s_e_masking_kho" value="⑥ Masking ↔ Kho [Knox/Hive]" style="html=1;strokeColor=#AD1457;strokeWidth=2;endArrow=block;endFill=1;startArrow=block;startFill=0;fontSize=9;fontFamily=Times New Roman;fontColor=#AD1457;labelBackgroundColor=#FFF;entryX=0;entryY=0.75;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" parent="1" source="s_appzone" target="s_kho" edge="1">
+                    <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                        <mxPoint x="1510" y="720" as="sourcePoint"/>
+                        <mxPoint x="1700" y="720" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

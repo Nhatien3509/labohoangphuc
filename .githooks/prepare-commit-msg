@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+# Append `[deploy:portal]` vào subject để CI/CD deploy lại portal-spa.
+# CHỈ áp dụng khi commit có đụng file src/web/portal-spa/ → commit BE thuần không
+# bị gắn nhầm tag FE. Bỏ qua merge/squash/amend (đã có message) và khi đã có tag.
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+TAG="[deploy:portal]"
+
+# Bỏ qua merge / squash / amend — giữ nguyên message gốc
+case "$COMMIT_SOURCE" in
+  merge|squash|commit)
+    exit 0
+    ;;
+esac
+
+# Chỉ gắn tag khi commit thực sự đụng file portal-spa.
+STAGED="$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null)"
+if ! printf '%s\n' "$STAGED" | grep -q '^src/web/portal-spa/'; then
+  exit 0
+fi
+
+# Đọc dòng đầu (subject). Nếu đã có tag thì thôi.
+FIRST_LINE=$(sed -n '1p' "$COMMIT_MSG_FILE")
+case "$FIRST_LINE" in
+  *"$TAG"*)
+    exit 0
+    ;;
+esac
+
+# Append tag vào cuối dòng đầu, giữ nguyên body bên dưới.
+TMP_FILE="${COMMIT_MSG_FILE}.tmp"
+{
+  if [ -z "$FIRST_LINE" ]; then
+    # Subject rỗng (template/comment-only) — không sửa
+    cat "$COMMIT_MSG_FILE"
+  else
+    printf '%s %s\n' "$FIRST_LINE" "$TAG"
+    sed -n '2,$p' "$COMMIT_MSG_FILE"
+  fi
+} > "$TMP_FILE"
+mv "$TMP_FILE" "$COMMIT_MSG_FILE"

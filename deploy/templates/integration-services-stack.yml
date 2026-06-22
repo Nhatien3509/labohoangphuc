@@ -1,0 +1,53 @@
+# =============================================================================
+# integration-services — Demo Stack (Remote Server)
+#
+# External dependencies (deployed on 160.191.32.193):
+#   Kafka UI:    http://160.191.32.193:8190
+#   SigNoz UI:   http://160.191.32.193:3301
+#   OTLP gRPC:   160.191.32.193:4317
+#
+# Services in this stack:
+#   postgres         :5433 (host) <- 5432 (container)
+#   mock-datasource  :8090
+#   ingest           :9181 (host) <- 8081 (container)
+#
+# Image vars updated by deploy.sh:
+#   IMAGE_INTEGRATION_SERVICES   — integration-services:<tag>
+#   IMAGE_MOCKDS   — dmst-mock-datasource:<tag>
+#
+# Networks:
+#   dmst_ingest_demo     — internal (postgres, mock-datasource, ingest)
+#   dmst_integration_network — external, shared với Kafka cluster
+#     ingest join vào network này để dùng INTERNAL listener của Kafka
+#     KAFKA_BROKERS = dmst-kafka-1:9092,dmst-kafka-2:9092,dmst-kafka-3:9092
+# =============================================================================
+
+name: integration-services-demo
+
+networks:
+  dmst_ingest_demo:
+    driver: bridge
+  integration_network:
+    name: dmst_integration_network
+    external: true
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # ingest — Service thu thap chinh
+  # Ket noi: postgres (noi bo), Kafka + SigNoz (external 160.191.32.193)
+  # ---------------------------------------------------------------------------
+  integration-services:
+    image: ${IMAGE_INTEGRATION_SERVICES:-integration-services:latest}
+    container_name: integration-services
+    restart: always
+    depends_on:
+      mock-datasource:
+        condition: service_healthy
+    env_file:
+      - .env.integration-services
+    ports:
+      - "${INGEST_PORT:-9181}:8081"
+    networks:
+      - dmst_ingest_demo
+      - integration_network

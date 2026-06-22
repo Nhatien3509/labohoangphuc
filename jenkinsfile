@@ -1,0 +1,270 @@
+pipeline {
+  agent { label 'docker-builder' }
+
+  options {
+    timestamps()
+    disableConcurrentBuilds()
+    gitLabConnection('GitLab') 
+  }
+
+  triggers {
+    gitlab(
+      triggerOnPush: true, 
+      triggerOnMergeRequest: false, 
+      triggerOnAcceptedMergeRequest: false, 
+      branchFilterType: 'NameBasedFilter', 
+      includeBranchesSpec: 'develop'
+    )
+  }
+
+  environment {
+    // === Git ===
+    GIT_URL = 'https://git.egovernment.com.vn/dmst/26.dmst.c12.tichhopchiase.git'
+
+    // === Harbor ===
+    HARBOR_REGISTRY = 'registry.egovernment.com.vn'
+    HARBOR_PROJECT  = 'thcs'
+    HARBOR_CREDS_ID = 'registry-thcs-user'
+
+    // === Deploy target ===
+    APP_HOST           = '160.191.33.99'
+    APP_SSH_USER       = 'almalinux'
+    APP_SSH_CREDS_ID   = 'thcs-dev-ssh-key'
+
+    // === Notification Targets ===
+    TELEGRAM_CREDS_BOT_TOKEN = 'telegram-bot-token' 
+    TELEGRAM_CREDS_CHAT_ID   = 'thcs-telegram-chat-id'
+    TELEGRAM_CREDS_TOPIC_ID  = 'thcs-telegram-topic-id'
+    EMAIL_RECEIVER           = 'devops@egovernment.com.vn'
+
+    // === Build Config ===
+    DOCKER_BUILDKIT    = '1'
+  }
+
+  stages {
+    stage('Parse Commit Message') {
+      steps {
+        script {
+          def rawBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: env.gitlabSourceBranch ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+          def branchName = rawBranch.replaceFirst("^origin/", "")
+          def safeBranchName = branchName.replaceAll("/", "-")
+          
+          env.GIT_BRANCH = branchName
+          env.GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+          env.GIT_COMMITTER    = sh(script: "git log -1 --pretty=%an", returnStdout: true).trim()
+          env.IMAGE_TAG = "${safeBranchName}-${env.GIT_COMMIT_SHORT}"
+
+          // Parse commit message - quét dải commit để không bỏ lỡ tag deploy trong Merge Request
+          def commitRange = "-1"
+          if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) {
+              def commitExists = sh(script: "git rev-parse --verify ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT} > /dev/null 2>&1 && echo 'true' || echo 'false'", returnStdout: true).trim()
+              if (commitExists == 'true') {
+                  commitRange = "${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT}..HEAD"
+              }
+          }
+          
+          def rawLog = sh(script: "git log ${commitRange} --pretty=%B", returnStdout: true).trim()
+          
+          // Kiểm tra nếu là merge commit (có 2 parents trở lên) để lấy thêm message từ branch được merge vào
+          def parentCountStr = sh(script: "git rev-list --parents -n 1 HEAD | awk '{print NF-1}'", returnStdout: true).trim()
+          def parentCount = parentCountStr ? parentCountStr.toInteger() : 0
+          
+          if (parentCount >= 2) {
+              echo "Merge commit detected (parents: ${parentCount}). Fetching messages from source branch..."
+              // Lấy log từ nhánh MR (parent 2) mà không có trong nhánh hiện tại (parent 1)
+              def mrLog = sh(script: "git log HEAD^2 --not HEAD^1 --pretty=%B 2>/dev/null || true", returnStdout: true).trim()
+              if (mrLog) {
+                  rawLog += "\n" + mrLog
+              }
+          }
+
+          // Bổ sung thêm Title và Description từ GitLab MR nếu có (từ Jenkins GitLab Plugin)
+          def gitlabContext = ""
+          if (env.gitlabMergeRequestTitle) gitlabContext += "\n" + env.gitlabMergeRequestTitle
+          if (env.gitlabMergeRequestDescription) gitlabContext += "\n" + env.gitlabMergeRequestDescription
+          
+          env.COMMIT_MSG = (rawLog + gitlabContext).trim()
+          
+          echo "=== Final Commit Message Content (for tag detection) ==="
+          echo env.COMMIT_MSG
+          echo "========================================================"
+
+          
+          def cleanDesc = env.COMMIT_MSG.replaceAll(/(?i)\[deploy:\s*[a-zA-Z0-9-]+\]/, '').trim()
+          env.DEPLOY_DESCRIPTION = cleanDesc ? cleanDesc : "Auto deploy by CI/CD"
+
+          // Detection logic for 8 services + helpers
+          def isAll = (env.COMMIT_MSG =~ /(?i)\[deploy:\s*all\]/)
+          def isBackend = (env.COMMIT_MSG =~ /(?i)\[deploy:\s*backend\]/)
+
+          env.DEPLOY_ADMIN      = (isAll || isBackend || env.COMMIT_MSG =~ /(?i)\[deploy:\s*admin\]/) ? 'true' : 'false'
+          env.DEPLOY_AUDIT      = (isAll || isBackend || env.COMMIT_MSG =~ /(?i)\[deploy:\s*audit\]/) ? 'true' : 'false'
+          env.DEPLOY_DOWNLOADER = (isAll || isBackend || env.COMMIT_MSG =~ /(?i)\[deploy:\s*file-downloader\]/) ? 'true' : 'false'
+          env.DEPLOY_INTEGRATION = (isAll || isBackend || env.COMMIT_MSG =~ /(?i)\[deploy:\s*integration\]/) ? 'true' : 'false'
+          env.DEPLOY_MASKING     = (isAll || isBackend || env.COMMIT_MSG =~ /(?i)\[deploy:\s*masking\]/) ? 'true' : 'false'
+          env.DEPLOY_MONITORING  = (isAll || isBackend || env.COMMIT_MSG =~ /(?i)\[deploy:\s*monitoring\]/) ? 'true' : 'false'
+          env.DEPLOY_SHARING     = (isAll || isBackend || env.COMMIT_MSG =~ /(?i)\[deploy:\s*sharing\]/) ? 'true' : 'false'
+          env.DEPLOY_PORTAL      = (isAll || env.COMMIT_MSG =~ /(?i)\[deploy:\s*portal\]/) ? 'true' : 'false'
+
+          // Collect services to deploy for reporting
+          def services = []
+          if (env.DEPLOY_ADMIN == 'true') services << 'admin'
+          if (env.DEPLOY_AUDIT == 'true') services << 'audit'
+          if (env.DEPLOY_DOWNLOADER == 'true') services << 'downloader'
+          if (env.DEPLOY_INTEGRATION == 'true') services << 'integration'
+          if (env.DEPLOY_MASKING == 'true') services << 'masking'
+          if (env.DEPLOY_MONITORING == 'true') services << 'monitoring'
+          if (env.DEPLOY_SHARING == 'true') services << 'sharing'
+          if (env.DEPLOY_PORTAL == 'true') services << 'portal'
+          
+          env.DEPLOYED_SERVICES = services.join(', ')
+
+          echo "GIT_BRANCH: ${env.GIT_BRANCH}"
+          echo "IMAGE_TAG: ${env.IMAGE_TAG}"
+          echo "SERVICES TO DEPLOY: ${env.DEPLOYED_SERVICES}"
+
+          if (services.isEmpty()) {
+              currentBuild.result = 'NOT_BUILT'
+              error("No deploy tag found (e.g., [deploy:admin], [deploy:all], [deploy:backend]). Skipping build.")
+          }
+        }
+      }
+    }
+
+    stage('Parallel Build & Push') {
+      parallel {
+        stage('Admin Service') {
+          when { expression { return env.DEPLOY_ADMIN == 'true' } }
+          steps { buildAndPush('admin-service', 'deploy/docker/admin-service/Dockerfile', 'src/services/admin-service') }
+        }
+        stage('Audit Service') {
+          when { expression { return env.DEPLOY_AUDIT == 'true' } }
+          steps { buildAndPush('audit-service', 'deploy/docker/audit-service/Dockerfile', 'src/services/audit-service') }
+        }
+        stage('File Downloader') {
+          when { expression { return env.DEPLOY_DOWNLOADER == 'true' } }
+          steps { buildAndPush('file-downloader-service', 'deploy/docker/file-downloader-service/Dockerfile', 'src/services/file-downloader-service') }
+        }
+        stage('Integration') {
+          when { expression { return env.DEPLOY_INTEGRATION == 'true' } }
+          steps { buildAndPush('integration-service', 'deploy/docker/integration-service/Dockerfile', 'src/services/integration-service') }
+        }
+        stage('Masking') {
+          when { expression { return env.DEPLOY_MASKING == 'true' } }
+          steps { buildAndPush('masking-service', 'deploy/docker/masking-service/Dockerfile', 'src/services/masking-service') }
+        }
+        stage('Monitoring') {
+          when { expression { return env.DEPLOY_MONITORING == 'true' } }
+          steps { buildAndPush('monitoring-service', 'deploy/docker/monitoring-service/Dockerfile', 'src/services/monitoring-service') }
+        }
+        stage('Sharing') {
+          when { expression { return env.DEPLOY_SHARING == 'true' } }
+          steps { buildAndPush('sharing-service', 'deploy/docker/sharing-service/Dockerfile', 'src/services/sharing-service') }
+        }
+        stage('Portal SPA') {
+          when { expression { return env.DEPLOY_PORTAL == 'true' } }
+          steps { buildAndPush('portal-spa', 'deploy/docker/portal-spa/Dockerfile', 'src/web/portal-spa') }
+        }
+      }
+    }
+
+    stage('Deploy on App host') {
+      steps {
+        withCredentials([
+          sshUserPrivateKey(credentialsId: env.APP_SSH_CREDS_ID, keyFileVariable: 'SSH_KEY'),
+          usernamePassword(credentialsId: env.HARBOR_CREDS_ID, usernameVariable: 'H_USER', passwordVariable: 'H_PASS')
+        ]) {
+          sh """
+            ssh -i "\${SSH_KEY}" -o StrictHostKeyChecking=no ${APP_SSH_USER}@${APP_HOST} '
+              set -e
+              echo "Docker Login..."
+              echo "${H_PASS}" | docker login "${HARBOR_REGISTRY}" -u "${H_USER}" --password-stdin
+              
+              deploy_service() {
+                local SERVICE_DIR=\$1
+                local IMAGE_NAME_FULL=\$2
+                echo "Deploying \$SERVICE_DIR..."
+                
+                cd "/home/${APP_SSH_USER}/thcs/deployments/dev/\$SERVICE_DIR"
+                docker pull "\$IMAGE_NAME_FULL"
+                
+                # Determine variable name (e.g., admin-service -> IMAGE_THCS_ADMIN_SERVICE)
+                local VAR_NAME="IMAGE_THCS_\$(echo "\$SERVICE_DIR" | tr '[:lower:]' '[:upper:]' | tr '-' '_')"
+                
+                # Update variable in .env
+                if grep -q "^\${VAR_NAME}=" .env 2>/dev/null; then
+                  sed -i "s|^\${VAR_NAME}=.*|\${VAR_NAME}=\${IMAGE_NAME_FULL}|" .env
+                else
+                  # Ensure file ends with newline before appending to avoid concatenation issues
+                  [ -f .env ] && [ -n "\$(tail -c1 .env 2>/dev/null)" ] && echo "" >> .env
+                  echo "\${VAR_NAME}=\${IMAGE_NAME_FULL}" >> .env
+                fi
+                
+                docker compose up -d
+              }
+
+              if [ "${env.DEPLOY_ADMIN}" = "true" ]; then deploy_service "admin-service" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/thcs-admin-service:${IMAGE_TAG}"; fi
+              if [ "${env.DEPLOY_AUDIT}" = "true" ]; then deploy_service "audit-service" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/thcs-audit-service:${IMAGE_TAG}"; fi
+              if [ "${env.DEPLOY_DOWNLOADER}" = "true" ]; then deploy_service "file-downloader-service" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/thcs-file-downloader-service:${IMAGE_TAG}"; fi
+              if [ "${env.DEPLOY_INTEGRATION}" = "true" ]; then deploy_service "integration-service" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/thcs-integration-service:${IMAGE_TAG}"; fi
+              if [ "${env.DEPLOY_MASKING}" = "true" ]; then deploy_service "masking-service" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/thcs-masking-service:${IMAGE_TAG}"; fi
+              if [ "${env.DEPLOY_MONITORING}" = "true" ]; then deploy_service "monitoring-service" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/thcs-monitoring-service:${IMAGE_TAG}"; fi
+              if [ "${env.DEPLOY_SHARING}" = "true" ]; then deploy_service "sharing-service" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/thcs-sharing-service:${IMAGE_TAG}"; fi
+              if [ "${env.DEPLOY_PORTAL}" = "true" ]; then deploy_service "portal-spa" "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/thcs-portal-spa:${IMAGE_TAG}"; fi
+              
+              docker logout "${HARBOR_REGISTRY}"
+            '
+          """
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      script {
+        notifyTelegram("✅ *THCS DEPLOY TH\u00c0NH C\u00d4NG*")
+      }
+    }
+    failure {
+      script {
+        notifyTelegram("❌ *THCS \\- L\u1ed6I BUILD/DEPLOY*")
+      }
+    }
+  }
+}
+
+def buildAndPush(serviceName, dockerfilePath, contextPath) {
+  def imageFull = "${env.HARBOR_REGISTRY}/${env.HARBOR_PROJECT}/thcs-${serviceName}:${env.IMAGE_TAG}"
+  sh "docker build -t ${imageFull} -f ${dockerfilePath} ${contextPath}"
+  
+  withCredentials([usernamePassword(credentialsId: env.HARBOR_CREDS_ID, usernameVariable: 'H_USER', passwordVariable: 'H_PASS')]) {
+    sh "echo \"\${H_PASS}\" | docker login \${HARBOR_REGISTRY} -u \${H_USER} --password-stdin"
+    sh "docker push ${imageFull}"
+    sh "docker logout \${HARBOR_REGISTRY}"
+  }
+}
+
+def notifyTelegram(statusMsg) {
+  def esc = { s -> s?.toString()?.replace("\\", "\\\\")?.replace("`", "\\`") ?: "" }
+  def uesc = { s -> s?.toString()?.replace("\\", "\\\\")?.replace(")", "\\)") ?: "" }
+  
+  def msg = """${statusMsg}
+📦 *Target*: `${esc(env.APP_HOST)}`
+👤 *Ng\u01b0\u1eddi deploy*: `${esc(env.GIT_COMMITTER)}`
+🌿 *Branch*: `${esc(env.GIT_BRANCH)}`
+🆔 *Version*: `${esc(env.IMAGE_TAG)}`
+📋 *Services*: `${esc(env.DEPLOYED_SERVICES)}`
+📝 *Chi ti\u1ebft:* `${esc(env.DEPLOY_DESCRIPTION)}`
+🔗 [Xem log Jenkins](${uesc(env.BUILD_URL)})"""
+
+  writeFile file: 'tg_msg.txt', text: msg
+
+  withCredentials([
+    string(credentialsId: env.TELEGRAM_CREDS_BOT_TOKEN, variable: 'TG_TOKEN'),
+    string(credentialsId: env.TELEGRAM_CREDS_CHAT_ID,   variable: 'TG_CHAT_ID'),
+    string(credentialsId: env.TELEGRAM_CREDS_TOPIC_ID,  variable: 'TG_TOPIC_ID')
+  ]) {
+    sh 'curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" -F "chat_id=${TG_CHAT_ID}" -F "message_thread_id=${TG_TOPIC_ID}" -F "parse_mode=MarkdownV2" -F "text=<tg_msg.txt"'
+  }
+}

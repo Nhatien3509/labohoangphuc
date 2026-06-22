@@ -1,0 +1,319 @@
+{
+  "type": "record",
+  "name": "KhoMoItemFull",
+  "namespace": "dmst.integration.khomo",
+  "fields": [
+    { "name": "id", "type": ["null", "string"], "default": null },
+    { "name": "ten", "type": ["null", "string"], "default": null },
+    { "name": "madinhdanhDl", "type": ["null", "string"], "default": null },
+    { "name": "ngonNgu", "type": ["null", "string"], "default": null },
+    { "name": "udNguondulieuId", "type": ["null", "string"], "default": null },
+    { "name": "tenNguonDuLieu", "type": ["null", "string"], "default": null },
+    { "name": "phienBan", "type": ["null", "string"], "default": null },
+    { "name": "trangThai", "type": ["null", "int"], "default": null },
+    { "name": "trangThaiHienThi", "type": ["null", "int"], "default": null },
+    { "name": "nguon", "type": ["null", "int"], "default": null },
+    { "name": "giayPhep", "type": ["null", "string"], "default": null },
+    { "name": "moTaNguonDl", "type": ["null", "string"], "default": null },
+    { "name": "ngayTao", "type": ["null", "string"], "default": null },
+    { "name": "ngaySua", "type": ["null", "string"], "default": null },
+    {
+      "name": "phamViDiaLy",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "PhamViDiaLy",
+          "fields": [
+            { "name": "label", "type": ["null", "string"], "default": null },
+            { "name": "identifier", "type": ["null", "string"], "default": null },
+            { "name": "address", "type": ["null", "string"], "default": null },
+            { "name": "exactMatch", "type": ["null", "string"], "default": null },
+            {
+              "name": "geometry",
+              "type": [
+                "null",
+                {
+                  "type": "record",
+                  "name": "Geometry",
+                  "fields": [
+                    { "name": "type", "type": ["null", "string"], "default": null },
+                    {
+                      "name": "coordinates",
+                      "type": [
+                        "null",
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "record",
+                            "name": "Coordinate",
+                            "fields": [
+                              { "name": "x", "type": ["null", "double"], "default": null },
+                              { "name": "y", "type": ["null", "double"], "default": null }
+                            ]
+                          }
+                        }
+                      ],
+                      "default": null
+                    }
+                  ]
+                }
+              ],
+              "default": null
+            }
+          ]
+        }
+      ],
+      "default": null
+    },
+    { "name": "khoangThoiGian", "type": ["null", "string"], "default": null },
+    { "name": "tanSuatCapNhat", "type": ["null", "string"], "default": null },
+    { "name": "phuongPhapThuThap", "type": ["null", "string"], "default": null },
+    { "name": "trangChu", "type": ["null", "string"], "default": null },
+    { "name": "ngayDonggop", "type": ["null", "string"], "default": null },
+    { "name": "nguoiDonggop", "type": ["null", "string"], "default": null },
+    { "name": "donViChuQuan", "type": ["null", "string"], "default": null },
+    { "name": "mucDoChiTiet", "type": ["null", "string"], "default": null },
+    { "name": "doTinCay", "type": ["null", "string"], "default": null },
+    { "name": "ghiChuKyThuat", "type": ["null", "string"], "default": null },
+    { "name": "lienKetTaiLieu", "type": ["null", "string"], "default": null },
+    { "name": "chinhSachBaoMat", "type": ["null", "string"], "default": null },
+    { "name": "tongDungLuong", "type": ["null", "long"], "default": null },
+    { "name": "soLuongTep", "type": ["null", "int"], "default": null },
+    { "name": "ngayDongBo", "type": ["null", "string"], "default": null },
+    { "name": "nguoiTao", "type": ["null", "string"], "default": null },
+    { "name": "nguoiSua", "type": ["null", "string"], "default": null },
+    { "name": "ngayCongbo", "type": ["null", "string"], "default": null },
+    { "name": "thayThe", "type": ["null", "string"], "default": null },
+    {
+      "name": "thamChieuBoi",
+      "type": ["null", { "type": "array", "items": "string" }],
+      "default": null
+    },
+    {
+      "name": "thanhPhan",
+      "type": ["null", { "type": "array", "items": "string" }],
+      "default": null
+    },
+    {
+      "name": "chuTheTao",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "ChuThe",
+          "fields": [
+            { "name": "name", "type": ["null", "string"], "default": null },
+            { "name": "type", "type": ["null", "string"], "default": null },
+            { "name": "email", "type": ["null", "string"], "default": null },
+            { "name": "homepage", "type": ["null", "string"], "default": null },
+            { "name": "depiction", "type": ["null", "string"], "default": null }
+          ]
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "danhSachTacGia",
+      "type": [
+        "null",
+        {
+          "type": "array",
+          "items": {
+            "type": "record",
+            "name": "TacGia",
+            "fields": [
+              { "name": "title", "type": ["null", "string"], "default": null },
+              { "name": "type", "type": ["null", "string"], "default": null },
+              { "name": "link", "type": ["null", "string"], "default": null }
+            ]
+          }
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "ttLienLac",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "TtLienLac",
+          "fields": [
+            { "name": "fn", "type": ["null", "string"], "default": null },
+            { "name": "email", "type": ["null", "string"], "default": null },
+            { "name": "phone", "type": ["null", "string"], "default": null },
+            { "name": "url", "type": ["null", "string"], "default": null },
+            { "name": "address", "type": ["null", "string"], "default": null }
+          ]
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "ttChuThe",
+      "type": ["null", "ChuThe"],
+      "default": null
+    },
+    { "name": "quyenSoHuu", "type": ["null", "string"], "default": null },
+    {
+      "name": "tieuChuan",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "TieuChuan",
+          "fields": [
+            { "name": "url", "type": ["null", "string"], "default": null },
+            { "name": "title", "type": ["null", "string"], "default": null },
+            { "name": "description", "type": ["null", "string"], "default": null },
+            { "name": "publisher", "type": ["null", "string"], "default": null },
+            { "name": "issued", "type": ["null", "string"], "default": null },
+            { "name": "identifier", "type": ["null", "string"], "default": null }
+          ]
+        }
+      ],
+      "default": null
+    },
+    { "name": "tinhTrangHienTai", "type": ["null", "string"], "default": null },
+    {
+      "name": "sieuDuLieuDinhKem",
+      "type": [
+        "null",
+        {
+          "type": "array",
+          "items": {
+            "type": "record",
+            "name": "ThuocTinh",
+            "fields": [
+              { "name": "name", "type": ["null", "string"], "default": null },
+              { "name": "displayName", "type": ["null", "string"], "default": null },
+              { "name": "value", "type": ["null", "string"], "default": null },
+              { "name": "type", "type": ["null", "string"], "default": null }
+            ]
+          }
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "nguonDuLieu",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "NguonDuLieu",
+          "fields": [
+            { "name": "id", "type": ["null", "string"], "default": null },
+            { "name": "ten", "type": ["null", "string"], "default": null },
+            { "name": "maTc", "type": ["null", "string"], "default": null },
+            { "name": "kieuTc", "type": ["null", "string"], "default": null }
+          ]
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "danhSachTepDuLieu",
+      "type": [
+        "null",
+        {
+          "type": "array",
+          "items": {
+            "type": "record",
+            "name": "TepDuLieu",
+            "fields": [
+              { "name": "id", "type": ["null", "string"], "default": null },
+              { "name": "tenTep", "type": ["null", "string"], "default": null },
+              { "name": "kieuDl", "type": ["null", "string"], "default": null },
+              { "name": "phienBan", "type": ["null", "string"], "default": null },
+              { "name": "duongDan", "type": ["null", "string"], "default": null },
+              { "name": "dungLuong", "type": ["null", "string"], "default": null },
+              { "name": "udTapdulieuId", "type": ["null", "string"], "default": null },
+              { "name": "duongdanDichvu", "type": ["null", "string"], "default": null },
+              { "name": "ngayDongbo", "type": ["null", "string"], "default": null },
+              { "name": "ngayTao", "type": ["null", "string"], "default": null },
+              { "name": "ngaySua", "type": ["null", "string"], "default": null },
+              { "name": "nguoiTao", "type": ["null", "string"], "default": null },
+              { "name": "nguoiSua", "type": ["null", "string"], "default": null },
+              { "name": "duongdanNguon", "type": ["null", "string"], "default": null },
+              { "name": "tieuDe", "type": ["null", "string"], "default": null },
+              { "name": "moTa", "type": ["null", "string"], "default": null },
+              { "name": "ngayPhatHanh", "type": ["null", "string"], "default": null },
+              { "name": "loaiPhuongTien", "type": ["null", "string"], "default": null },
+              { "name": "dinhDangNen", "type": ["null", "string"], "default": null },
+              { "name": "dinhDangDongGoi", "type": ["null", "string"], "default": null },
+              { "name": "isLichSu", "type": ["null", "boolean"], "default": null },
+              {
+                "name": "checkSum",
+                "type": [
+                  "null",
+                  {
+                    "type": "record",
+                    "name": "CheckSum",
+                    "fields": [
+                      { "name": "algorithm", "type": ["null", "string"], "default": null },
+                      { "name": "value", "type": ["null", "string"], "default": null }
+                    ]
+                  }
+                ],
+                "default": null
+              },
+              { "name": "tieuChuan", "type": ["null", "TieuChuan"], "default": null },
+              { "name": "giayPhep", "type": ["null", "string"], "default": null },
+              { "name": "quyenSoHuu", "type": ["null", "string"], "default": null }
+            ]
+          }
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "danhSachLinhVuc",
+      "type": [
+        "null",
+        {
+          "type": "array",
+          "items": {
+            "type": "record",
+            "name": "LinhVuc",
+            "fields": [
+              { "name": "id", "type": ["null", "string"], "default": null },
+              { "name": "ma", "type": ["null", "string"], "default": null },
+              { "name": "ten", "type": ["null", "string"], "default": null },
+              { "name": "moTa", "type": ["null", "string"], "default": null },
+              { "name": "trangThai", "type": ["null", "int"], "default": null }
+            ]
+          }
+        }
+      ],
+      "default": null
+    },
+    {
+      "name": "danhSachThuocTinhThem",
+      "type": [
+        "null",
+        {
+          "type": "array",
+          "items": {
+            "type": "record",
+            "name": "ThuocTinhThem",
+            "fields": [
+              { "name": "id", "type": ["null", "string"], "default": null },
+              { "name": "udTapdulieuId", "type": ["null", "string"], "default": null },
+              { "name": "ten", "type": ["null", "string"], "default": null },
+              { "name": "tenHienthi", "type": ["null", "string"], "default": null },
+              { "name": "giaTri", "type": ["null", "string"], "default": null },
+              { "name": "loaiDl", "type": ["null", "string"], "default": null },
+              { "name": "ngayTao", "type": ["null", "string"], "default": null },
+              { "name": "ngaySua", "type": ["null", "string"], "default": null },
+              { "name": "nguoiTao", "type": ["null", "string"], "default": null },
+              { "name": "nguoiSua", "type": ["null", "string"], "default": null }
+            ]
+          }
+        }
+      ],
+      "default": null
+    }
+  ]
+}

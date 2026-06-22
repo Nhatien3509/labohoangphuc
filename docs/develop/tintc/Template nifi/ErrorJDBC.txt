@@ -1,0 +1,27 @@
+2026-06-09 06:33:18,812 ERROR [Timer-Driven Process Thread-1] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver
+2026-06-09 06:33:48,812 ERROR [Timer-Driven Process Thread-6] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver
+2026-06-09 06:34:18,813 ERROR [Timer-Driven Process Thread-3] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver
+2026-06-09 06:34:48,813 ERROR [Timer-Driven Process Thread-7] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver
+2026-06-09 06:35:18,814 ERROR [Timer-Driven Process Thread-9] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver
+2026-06-09 06:35:48,815 ERROR [Timer-Driven Process Thread-9] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver
+2026-06-09 06:36:18,815 ERROR [Timer-Driven Process Thread-2] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver
+2026-06-09 06:36:48,816 ERROR [Timer-Driven Process Thread-8] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver
+2026-06-09 06:37:18,816 ERROR [Timer-Driven Process Thread-6] o.a.n.c.s.StandardControllerServiceNode StandardControllerServiceNode[service=DBCPConnectionPool[id=6869a037-019e-1000-0e54-061721bd8bff], name=DBCPConnectionPool_thuthap_dl002, active=true] Failed to invoke @OnEnabled method
+org.apache.nifi.processor.exception.ProcessException: Driver class org.apache.hive.jdbc.HiveDriver is not found
+Caused by: java.lang.ClassNotFoundException: org.apache.hive.jdbc.HiveDriver

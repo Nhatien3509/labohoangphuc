@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+# Pre-push hook FE (portal-spa):
+#   1. Validate branch name (gitflow)
+#   2. Check FE conventions
+# Cả 2 CHỈ chạy khi lần push này có đụng file src/web/portal-spa/ → push BE thuần
+# không cần Node/FE deps. (Đúng intent gốc: "both checks only run when portal-spa
+# files are involved".)
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+ZERO="0000000000000000000000000000000000000000"
+
+# Phát hiện push có đụng file FE không, dựa trên các ref đọc từ stdin.
+FE_INVOLVED=0
+while read -r local_ref local_oid remote_ref remote_oid; do
+  [ -z "$local_oid" ] && continue
+  [ "$local_oid" = "$ZERO" ] && continue   # xoá nhánh → bỏ qua
+  if [ "$remote_oid" = "$ZERO" ]; then
+    # Nhánh mới: lấy file trong các commit chưa có ở bất kỳ nhánh remote nào.
+    files="$(git diff --name-only "$local_oid" --not --remotes 2>/dev/null)"
+  else
+    files="$(git diff --name-only "$remote_oid..$local_oid" 2>/dev/null)"
+  fi
+  if printf '%s\n' "$files" | grep -q '^src/web/portal-spa/'; then
+    FE_INVOLVED=1
+  fi
+done
+
+[ "$FE_INVOLVED" -eq 0 ] && exit 0
+
+# 1. Branch name validation (validator chỉ dùng node:child_process, không cần FE deps)
+(
+  cd "$REPO_ROOT/src/web/portal-spa" || exit 1
+  node tools/gitflow/validate-rules.mjs branch
+) || exit 1
+
+# 2. FE convention check — script tự xử cwd + scope portal-spa
+sh "$REPO_ROOT/src/web/portal-spa/scripts/check-fe-conventions.sh"

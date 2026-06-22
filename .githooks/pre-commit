@@ -1,0 +1,99 @@
+#!/usr/bin/env sh
+# Pre-commit hook DUY NHẤT cho monorepo (đặt ở repo-root .githooks/).
+# Mỗi phần tự gate theo loại file staged → FE và BE độc lập nhau:
+#   - portal-spa FE:    npm run lint:staged          (khi có file src/web/portal-spa/)
+#   - Go golangci-lint: chỉ chặn issue MỚI so HEAD   (khi có file .go ngoài FE)
+#   - convention-scan:  Go/Dockerfile, lọc baseline  (chỉ block NEW violations)
+#
+# Kích hoạt (cả 2 cách đều trỏ core.hooksPath=.githooks, không xung đột):
+#   - BE/mọi dev:  scripts/install-hooks.sh  (hoặc .ps1 trên Windows)
+#   - FE dev:      npm install ở src/web/portal-spa → prepare → setup-git-hooks.sh
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+STAGED="$(git diff --cached --name-only --diff-filter=ACM)"
+
+# -------- portal-spa FE lint --------
+if echo "$STAGED" | grep -q "^src/web/portal-spa/"; then
+  echo ""
+  echo "📖 Reminder: đối chiếu convention trước khi commit:"
+  echo "   src/web/portal-spa/docs/content/FE-Convention-Master.md"
+  echo ""
+  echo "🔍 Running lint-staged..."
+  echo ""
+  (cd "$REPO_ROOT/src/web/portal-spa" && npm run lint:staged) || exit 1
+fi
+
+# -------- Go golangci-lint (native, chỉ chặn issue MỚI so với HEAD) --------
+# Đặt TRƯỚC convention-scan vì khối đó có thể `exit 0` (skip) khi thiếu Docker.
+GO_STAGED="$(echo "$STAGED" | grep -E '\.go$' | grep -v '^src/web/' || true)"
+if [ -n "$GO_STAGED" ]; then
+  if ! command -v golangci-lint >/dev/null 2>&1; then
+    echo ""
+    echo "❌ golangci-lint chưa được cài — bắt buộc khi commit code Go."
+    echo "   Cài 1 trong 2 cách:"
+    echo "     go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"
+    echo "     brew install golangci-lint"
+    exit 1
+  fi
+  # Gom các module root (thư mục có go.mod) chứa file .go staged.
+  GOLINT_MODULES="$(for f in $GO_STAGED; do
+    d="$REPO_ROOT/$(dirname "$f")"
+    while [ "$d" != "/" ]; do
+      if [ -f "$d/go.mod" ]; then printf '%s\n' "$d"; break; fi
+      d="$(dirname "$d")"
+    done
+  done | sort -u)"
+  GOLINT_FAIL=0
+  for m in $GOLINT_MODULES; do
+    echo ""
+    echo "🔍 golangci-lint run (issue mới) tại: ${m#"$REPO_ROOT"/}"
+    (cd "$m" && golangci-lint run --new-from-rev=HEAD ./...) || GOLINT_FAIL=1
+  done
+  if [ "$GOLINT_FAIL" -ne 0 ]; then
+    echo ""
+    echo "❌ golangci-lint phát hiện vấn đề ở code mới. Sửa rồi commit lại."
+    exit 1
+  fi
+fi
+
+# -------- Go / Dockerfile convention-scan (baseline-filtered) --------
+CHANGED_GO="$(echo "$STAGED" | grep -E '\.go$|Dockerfile' | grep -v '^src/web/' || true)"
+if [ -n "$CHANGED_GO" ]; then
+  if [ ! -d "$REPO_ROOT/tools/convention-scan" ]; then
+    echo "⚠️  tools/convention-scan not found — skip Go convention check"
+    exit 0
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "⚠️  docker not available — skip Go convention check"
+    exit 0
+  fi
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "⚠️  python3 not available — skip Go convention check"
+    exit 0
+  fi
+  echo ""
+  echo "🔍 Running convention-scan on staged Go/Dockerfile..."
+  echo ""
+  printf '%s\n' "$CHANGED_GO" > "$REPO_ROOT/.convention-scan.staged.txt"
+  SCAN_OUT="$(docker run --rm \
+    -v "$REPO_ROOT:/workspace" -w /workspace \
+    golang:1.26-alpine sh -c '
+      set -e
+      cd tools/convention-scan
+      go build -o /tmp/convention-scan . >/dev/null
+      cd /workspace
+      cat .convention-scan.staged.txt | /tmp/convention-scan --paths-from - --no-color
+    ' 2>&1)"
+  rm -f "$REPO_ROOT/.convention-scan.staged.txt"
+
+  # Filter against baseline — chỉ block trên NEW violations
+  echo "$SCAN_OUT" | python3 "$REPO_ROOT/tools/convention-scan/filter-baseline.py" \
+    "$REPO_ROOT/.convention-scan-baseline.txt"
+  rc=$?
+  if [ "$rc" -eq 2 ]; then
+    echo ""
+    echo "Tip: nếu vi phạm là cũ và không phải bạn tạo ra, refresh baseline:"
+    echo "  bash tools/convention-scan/refresh-baseline.sh"
+    exit 1
+  fi
+fi

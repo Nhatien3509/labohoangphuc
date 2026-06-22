@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# Sau git checkout/switch: tự đảm bảo core.hooksPath=.githooks. Idempotent + im lặng.
+# (Không chạy được lúc git clone vì core.hooksPath chưa set — clone đầu vẫn cần
+#  scripts/install-hooks.sh hoặc npm install ở FE để bật hook. Xem README.)
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -z "$ROOT" ] && exit 0
+if [ "$(git config core.hooksPath 2>/dev/null)" != ".githooks" ]; then
+  git config core.hooksPath .githooks
+fi
