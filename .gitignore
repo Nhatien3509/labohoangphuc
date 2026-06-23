@@ -58,3 +58,6 @@ src/services/mock_datasource/scripts/
 .convention-scan.staged.txt
 
 GenSchemaDev
+
+.idea/
+*.iml
