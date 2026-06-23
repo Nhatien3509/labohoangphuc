@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. DATABASE SYSTEM: POSTGRESQL
+  # ==========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: labo_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-SecretPassword2026}
+      POSTGRES_DB: ${DB_NAME:-labo_warranty_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Tự động nạp extension citext và pgcrypto nếu bạn để file init.sql ở đây
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - labo_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # 2. CACHE & RATE LIMIT SYSTEM: REDIS
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: labo_redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - labo_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ==========================================
+  # 3. CORE BACKEND: GO APPLICATION
+  # ==========================================
+  backend:
+    build:
+      [cite_start]context: ../labo-warranty
+    container_name: labo_backend
+    restart: always
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      - APP_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-SecretPassword2026}
+      - DB_NAME=${DB_NAME:-labo_warranty_db}
+      - REDIS_ADDR=redis:6379
+    networks:
+      - labo_network
+    # Đảm bảo Postgres và Redis phải chạy khỏe mạnh thì Backend mới khởi động
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+# ==========================================
+# VOLUMES & NETWORKS MANAGEMENT
+# ==========================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  labo_network:
+    driver: bridge
