@@ -1,9 +1,0 @@
-# L5 · Distribution — nguồn marketplace để cài plugin (npm packages cho agent capabilities).
-# Mỗi dòng là một nguồn; comment bằng '#'.
-
-# Marketplace nội bộ (ví dụ):
-https://registry.npmjs.org/@ttst/portal-spa-agent-kit
-
-# Cài qua Claude Code:
-#   /plugin marketplace add @ttst/portal-spa-agent-kit
-#   /plugin install portal-spa-agent-kit
