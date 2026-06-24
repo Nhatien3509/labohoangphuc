@@ -51,8 +51,16 @@ func (wh *WarrantyHandler) CreateCard(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, dto.NewErrorResponse("BAD_REQUEST: "+err.Error()))
 		return
 	}
-
-	adminID := "00000000-0000-0000-0000-000000000000"
+	adminIDVal, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, errs.ErrMissingUser)
+		return
+	}
+	adminID, ok := adminIDVal.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, errs.ErrInvalidUser)
+		return
+	}
 
 	res, err := wh.ws.CreateCard(c.Request.Context(), &request, adminID)
 	if err != nil {

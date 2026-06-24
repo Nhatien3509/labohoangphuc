@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"labohoangphuc/labo-warranty/internal/config"
 	"labohoangphuc/labo-warranty/internal/http/handler"
+	"labohoangphuc/labo-warranty/internal/http/middleware"
 	"labohoangphuc/labo-warranty/internal/repository"
 	"labohoangphuc/labo-warranty/internal/service"
 	"log"
@@ -15,11 +16,16 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 func main() {
 	config.LoadConfig()
-
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("secure_password", middleware.ValidateSecurePassword)
+	}
+	jwtSecret := config.AppConfig.JWTSecret
 	db, err := repository.NewPostgresDB()
 	if err != nil {
 		log.Fatalf("Lỗi nghiêm trọng hệ thống(không thể kết nối đến Database): %v", err)
@@ -31,27 +37,45 @@ func main() {
 	if err != nil {
 		log.Fatalf("Lỗi nghiêm trọng hệ thống(không thể kết nối đến Redis): %v", err)
 	}
-	defer db.Close()
+	defer rdb.Close()
 	log.Println("-> [Redis]: Kết nối thông suốt, Redis đã sẵn sàng hoạt động!")
 	warrantyRepo := repository.NewWarrantyRepository(db)
 	warrantyService := service.NewWarrantyService(warrantyRepo, rdb)
 	warrantyHandler := handler.NewWarrantyHandler(warrantyService)
 
+	authRepository := repository.NewAuthRepository(db, rdb)
+	authService := service.NewAuthService(authRepository, jwtSecret)
+	authHandler := handler.NewAuthHandler(authService)
 	if config.AppConfig.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.Default()
 
-	// Khai báo Base Path: /api/v1 theo đúng Spec tài liệu thiết kế
+	// Khai báo Base Path: /api/v1
 	v1 := r.Group("/api/v1")
 	{
+		// 🔓 1. Nhóm Auth Public hoàn toàn (Không bọc bất kỳ Middleware nào)
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/login", authHandler.Login)
+		}
+
+		// 🔒 2. Nhóm Auth Bảo mật (Chỉ áp dụng riêng cho Logout và Change Password)
+		// Đổi toàn bộ thành chữ w thường để khớp với file middleware chuẩn
+		authProtected := v1.Group("/auth")
+		authProtected.Use(middleware.AuthMiddleware([]byte(jwtSecret)))
+		{
+			authProtected.POST("/logout", authHandler.Logout)
+			authProtected.POST("/change-password", authHandler.ChangePassword)
+		}
+
 		// Endpoint Tra cứu công khai dành cho Khách vãng lai
 		v1.GET("/warranty/:code", warrantyHandler.PublicLookup)
 
 		// Nhóm Endpoint bảo mật dành cho Admin/Staff
 		adminGroup := v1.Group("/admin")
+		adminGroup.Use(middleware.AuthMiddleware([]byte(jwtSecret)))
 		{
-			// Sau này bạn cắm Middleware Auth JWT vào đây: adminGroup.Use(middleware.Auth())
 			adminGroup.POST("/warranty-cards", warrantyHandler.CreateCard)
 		}
 	}
