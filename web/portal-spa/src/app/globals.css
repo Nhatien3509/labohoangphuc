@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Nền & bề mặt (lấy cảm hứng từ bản thiết kế UI tham chiếu) */
+    --background: 208 24% 97%;
+    --foreground: 222 20% 22%;
+    --surface: 208 30% 99%;
+    --card: 208 30% 99%;
+    --card-foreground: 222 20% 22%;
+    --popover: 208 30% 99%;
+    --popover-foreground: 222 20% 22%;
+
+    /* Màu thương hiệu (accent xanh) */
+    --primary: 212 76% 48%;
+    --primary-foreground: 0 0% 100%;
+    --brand: 212 76% 48%;
+    --brand-soft: 211 56% 94%;
+    --brand-dark: 212 72% 40%;
+
+    --secondary: 211 56% 94%;
+    --secondary-foreground: 212 70% 38%;
+    --muted: 208 24% 95%;
+    --muted-foreground: 218 10% 46%;
+    --accent: 211 56% 94%;
+    --accent-foreground: 212 70% 38%;
+
+    --destructive: 5 74% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 52% 42%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 210 20% 90%;
+    --input: 210 20% 90%;
+    --ring: 212 76% 48%;
+    --radius: 0.625rem;
+
+    /* Nền tối cho các khối testimonial / footer (tương ứng --fg ở bản tham chiếu) */
+    --ink: 222 24% 16%;
+  }
+
+  .dark {
+    --background: 222 24% 8%;
+    --foreground: 210 40% 98%;
+    --surface: 222 22% 11%;
+    --card: 222 22% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 22% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 212 84% 60%;
+    --primary-foreground: 222 47% 11%;
+    --brand: 212 84% 60%;
+    --brand-soft: 213 32% 18%;
+    --brand-dark: 212 70% 50%;
+
+    --secondary: 217 33% 18%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 18%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 210 40% 98%;
+    --success: 145 50% 45%;
+    --success-foreground: 210 40% 98%;
+
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 212 84% 60%;
+
+    --ink: 222 28% 7%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Gradient nền hero sáng (surface -> brand-soft) */
+  .bg-hero-soft {
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--surface)) 0%,
+      hsl(var(--brand-soft)) 100%
+    );
+  }
+  /* Gradient nền hero tối cho trang tra cứu */
+  .bg-hero-ink {
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--ink)) 0%,
+      hsl(222 20% 24%) 100%
+    );
+  }
+  .bg-cta-soft {
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--brand-soft)) 0%,
+      hsl(var(--surface)) 100%
+    );
+  }
+}
