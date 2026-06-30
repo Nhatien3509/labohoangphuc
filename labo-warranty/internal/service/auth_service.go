@@ -91,7 +91,7 @@ func (as *authService) Logout(ctx context.Context, userID string) error {
 }
 
 // Refresh cấp lại access token (và xoay refresh token) từ một refresh token hợp lệ.
-// Quy trình: xác thực chữ ký JWT -> đối chiếu với refresh token đang lưu trong Redis
+// Quy trình: xác thực chữ ký JWT -> đối chiếu với refresh token đang lưu trong Postgres
 // -> sinh cặp token mới -> lưu refresh token mới (token rotation).
 func (as *authService) Refresh(ctx context.Context, refreshToken string) (*dto.TokenResponse, error) {
 	claims := &dto.AppClaims{}

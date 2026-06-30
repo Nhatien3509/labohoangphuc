@@ -1,0 +1,26 @@
+# syntax=docker/dockerfile:1
+# Backend Go (labo-warranty). Build context = ROOT repo (vì go.mod ở root).
+# Vibe Hosting: trỏ service này tới Dockerfile.backend, build context = thư mục gốc.
+
+# ====== Build stage ======
+FROM golang:1.26-alpine AS build
+WORKDIR /src
+
+# Module Go đặt ở root repo (module: labohoangphuc); mã nguồn BE ở ./labo-warranty
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY labo-warranty ./labo-warranty
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/api ./labo-warranty/cmd/api
+
+# ====== Runtime stage ======
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates tzdata
+WORKDIR /app
+COPY --from=build /out/api ./api
+
+# APP_ENV=production -> Gin chạy release mode. Các biến DB/JWT set ở dashboard Vibe.
+ENV APP_ENV=production \
+    SERVER_PORT=8080
+EXPOSE 8080
+ENTRYPOINT ["./api"]

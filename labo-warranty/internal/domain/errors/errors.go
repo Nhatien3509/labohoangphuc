@@ -39,5 +39,4 @@ var (
 // ==============================================================================
 var (
 	ErrInternalServer = errors.New("lỗi hệ thống từ phía máy chủ")
-	ErrRedisDown      = errors.New("không thể kết nối tới bộ nhớ đệm cache")
 )

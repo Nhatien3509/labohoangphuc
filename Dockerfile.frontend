@@ -1,0 +1,34 @@
+# syntax=docker/dockerfile:1
+# Frontend Next.js (web/portal-spa) ở chế độ standalone. Build context = ROOT repo.
+# Vibe Hosting: trỏ service này tới Dockerfile.frontend, build context = thư mục gốc.
+
+# ====== Build stage ======
+FROM node:20-alpine AS build
+WORKDIR /app
+
+# Cài dependencies theo lock file trước (tận dụng cache layer)
+COPY web/portal-spa/package.json web/portal-spa/package-lock.json ./
+RUN npm ci
+
+# Build Next.js (output: standalone nhờ biến STANDALONE)
+COPY web/portal-spa/ ./
+ENV STANDALONE=true \
+    NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+# ====== Runtime stage ======
+FROM node:20-alpine AS run
+WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HOSTNAME=0.0.0.0 \
+    PORT=3600
+
+# Bản standalone gồm server.js + node_modules tối thiểu
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+
+# BACKEND_URL (trỏ tới service backend) set ở dashboard Vibe lúc chạy.
+EXPOSE 3600
+CMD ["node", "server.js"]

@@ -1,8 +1,16 @@
-version: '3.8'
-
+# ============================================================================
+# Full-stack production (Postgres + Backend Go + Frontend Next.js).
+# Dùng để chạy thử toàn bộ trên 1 máy/VPS:
+#     cd deploy && cp .env.production.example .env && docker compose up -d --build
+#
+# Trên VIBE HOSTING: KHÔNG dùng file này trực tiếp. Mỗi service trỏ thẳng tới
+# Dockerfile.backend / Dockerfile.frontend ở root repo, và Postgres dùng dịch vụ
+# PostgreSQL quản lý của Mắt Bão (xem deploy/VIBE-HOSTING.md).
+# ============================================================================
 services:
   # ==========================================
-  # 1. DATABASE SYSTEM: POSTGRESQL
+  # 1. DATABASE: POSTGRESQL
+  # (Trên Vibe Hosting thay bằng PostgreSQL quản lý.)
   # ==========================================
   postgres:
     image: postgres:15-alpine
@@ -16,8 +24,6 @@ services:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # Tự động nạp extension citext và pgcrypto nếu bạn để file init.sql ở đây
-      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - labo_network
     healthcheck:
@@ -27,59 +33,55 @@ services:
       retries: 5
 
   # ==========================================
-  # 2. CACHE & RATE LIMIT SYSTEM: REDIS
-  # ==========================================
-  redis:
-    image: redis:7-alpine
-    container_name: labo_redis
-    restart: always
-    command: redis-server --appendonly yes
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - labo_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-  # ==========================================
-  # 3. CORE BACKEND: GO APPLICATION
+  # 2. BACKEND: GO API  (Dockerfile.backend ở root repo)
   # ==========================================
   backend:
     build:
-      [cite_start]context: ../labo-warranty
+      context: ..
+      dockerfile: Dockerfile.backend
     container_name: labo_backend
     restart: always
     ports:
       - "${APP_PORT:-8080}:8080"
     environment:
-      - APP_ENV=development
+      - APP_ENV=production
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-SecretPassword2026}
       - DB_NAME=${DB_NAME:-labo_warranty_db}
-      - REDIS_ADDR=redis:6379
+      - DB_SSL_MODE=disable
+      - JWT_SECRET=${JWT_SECRET:-change_me_in_production}
+      # Tạo admin lần đầu (nhớ đổi mật khẩu sau khi đăng nhập)
+      - SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-admin@labo.vn}
+      - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD:-Admin@123}
     networks:
       - labo_network
-    # Đảm bảo Postgres và Redis phải chạy khỏe mạnh thì Backend mới khởi động
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
 
-# ==========================================
-# VOLUMES & NETWORKS MANAGEMENT
-# ==========================================
+  # ==========================================
+  # 3. FRONTEND: NEXT.JS  (Dockerfile.frontend ở root repo)
+  # ==========================================
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.frontend
+    container_name: labo_frontend
+    restart: always
+    ports:
+      - "${WEB_PORT:-3600}:3600"
+    environment:
+      # FE gọi BE qua mạng nội bộ docker (tên service "backend")
+      - BACKEND_URL=http://backend:8080
+    networks:
+      - labo_network
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
-    driver: local
-  redis_data:
     driver: local
 
 networks:

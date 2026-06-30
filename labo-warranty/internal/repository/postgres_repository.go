@@ -102,6 +102,14 @@ CREATE TABLE IF NOT EXISTS warranty_lookups (
     looked_up_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 7. Tạo bảng refresh_tokens (thay Redis: lưu refresh token mỗi user kèm hạn dùng)
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    token TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Vá các DB cũ đã tạo bảng trước khi bổ sung cột (idempotent, an toàn chạy lại)
 ALTER TABLE users          ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ;
 ALTER TABLE users          ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;

@@ -2,9 +2,7 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"labohoangphuc/labo-warranty/internal/domain/dto"
 	"labohoangphuc/labo-warranty/internal/domain/entities"
 	errs "labohoangphuc/labo-warranty/internal/domain/errors"
@@ -15,10 +13,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/redis/go-redis/v9"
 )
-
-var WarrantyCard = "warranty:card:"
 
 type WarrantyService interface {
 	// Nghiệp vụ dành cho Admin/Staff phát hành thẻ
@@ -35,20 +30,16 @@ type WarrantyService interface {
 	UpdateCard(ctx context.Context, id string, req *dto.AdminUpdateWarrantyRequest) (*dto.AdminWarrantyResponse, error)
 	DeleteCard(ctx context.Context, id string) error
 
-	// Nghiệp vụ dành cho Khách vãng lai tra cứu công khai (Có tích hợp Redis Cache + Async Log)
+	// Nghiệp vụ dành cho Khách vãng lai tra cứu công khai (có ghi nhật ký bất đồng bộ)
 	PublicLookup(ctx context.Context, code string, ipAddress, userAgent string) (*dto.PublicWarrantyLookupResponse, error)
 }
 
 type warrantyService struct {
-	wr  repository.WarrantyRepository
-	rdb *redis.Client
+	wr repository.WarrantyRepository
 }
 
-func NewWarrantyService(wr repository.WarrantyRepository, rdb *redis.Client) WarrantyService {
-	return &warrantyService{
-		wr:  wr,
-		rdb: rdb,
-	}
+func NewWarrantyService(wr repository.WarrantyRepository) WarrantyService {
+	return &warrantyService{wr: wr}
 }
 
 func (ws *warrantyService) CreateCard(ctx context.Context, req *dto.AdminCreateWarrantyRequest, adminID string) (*dto.AdminWarrantyResponse, error) {
@@ -134,7 +125,6 @@ func (ws *warrantyService) UpdateCard(ctx context.Context, id string, req *dto.A
 	if err != nil {
 		return nil, err
 	}
-	oldCode := card.Code
 
 	warrantyMonths := req.WarrantyMonths
 	if warrantyMonths <= 0 {
@@ -156,22 +146,15 @@ func (ws *warrantyService) UpdateCard(ctx context.Context, id string, req *dto.A
 		return nil, err
 	}
 
-	// Vô hiệu hoá cache tra cứu công khai cho cả mã cũ lẫn mã mới.
-	_ = ws.rdb.Del(ctx, WarrantyCard+oldCode, WarrantyCard+card.Code).Err()
-
 	return ToAdminWarrantyResponse(card), nil
 }
 
 func (ws *warrantyService) DeleteCard(ctx context.Context, id string) error {
-	card, err := ws.wr.FindByID(ctx, id)
-	if err != nil {
+	// Đảm bảo thẻ tồn tại trước khi xoá (trả về lỗi không tìm thấy nếu không có).
+	if _, err := ws.wr.FindByID(ctx, id); err != nil {
 		return err
 	}
-	if err := ws.wr.DeleteCard(ctx, id); err != nil {
-		return err
-	}
-	_ = ws.rdb.Del(ctx, WarrantyCard+card.Code).Err()
-	return nil
+	return ws.wr.DeleteCard(ctx, id)
 }
 
 func ToAdminWarrantyResponse(m *entities.WarrantyCard) *dto.AdminWarrantyResponse {
@@ -215,14 +198,6 @@ func (ws *warrantyService) PublicLookup(ctx context.Context, code string, ipAddr
 	if code == "" || len(code) > 64 {
 		return nil, errs.ErrInvalidCodeFormat
 	}
-	cacheKey := fmt.Sprint(WarrantyCard + code)
-	cachedData, err := ws.rdb.Get(ctx, cacheKey).Result()
-	if err == nil {
-		var publicDTO dto.PublicWarrantyLookupResponse
-		if json.Unmarshal([]byte(cachedData), &publicDTO) == nil {
-			return &publicDTO, nil
-		}
-	}
 
 	card, err := ws.wr.FindByCode(ctx, code)
 	isFound := true
@@ -257,12 +232,7 @@ func (ws *warrantyService) PublicLookup(ctx context.Context, code string, ipAddr
 	}
 
 	clinicName := "Nha khoa Smile" // Du lieu tam
-
-	publicResponse := ToPublicWarrantyLookupResponse(card, clinicName)
-	if jsonData, jsonErr := json.Marshal(publicResponse); jsonErr == nil {
-		_ = ws.rdb.Set(ctx, cacheKey, jsonData, 10*time.Minute).Err()
-	}
-	return publicResponse, nil
+	return ToPublicWarrantyLookupResponse(card, clinicName), nil
 }
 
 func ToPublicWarrantyLookupResponse(card *entities.WarrantyCard, clinicName string) *dto.PublicWarrantyLookupResponse {

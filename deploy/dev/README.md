@@ -1,9 +1,9 @@
 # Môi trường DEV để test local
 
-Bộ này dựng Postgres + Redis (kèm schema + dữ liệu mẫu) khớp với cấu hình mặc
+Bộ này dựng Postgres (kèm schema + dữ liệu mẫu) khớp với cấu hình mặc
 định của backend, để chạy thử toàn bộ luồng đăng nhập → tra cứu → phát hành thẻ.
 
-## 1. Khởi động hạ tầng (Postgres + Redis)
+## 1. Khởi động hạ tầng (Postgres)
 
 ```bash
 cd deploy/dev
@@ -14,7 +14,6 @@ Lần đầu sẽ tự nạp `init/01-schema.sql` (schema đầy đủ + hàm `n
 và `init/02-seed.sql` (tài khoản + dữ liệu mẫu).
 
 - Postgres: `localhost:5434`, db `labo_warranty`, user `postgres`, pass `secret`
-- Redis: `localhost:6379`
 
 ## 2. Chạy backend (Go)
 

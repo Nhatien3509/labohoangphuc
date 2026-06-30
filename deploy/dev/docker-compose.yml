@@ -1,7 +1,7 @@
 # ============================================================================
-# Bộ hạ tầng DEV để test local (Postgres + Redis).
+# Bộ hạ tầng DEV để test local (chỉ Postgres — đã bỏ Redis).
 # Cấu hình KHỚP với giá trị mặc định trong labo-warranty/internal/config/config.go
-# (DB cổng 5434, db=labo_warranty, user=postgres, pass=secret; Redis 6379) để
+# (DB cổng 5434, db=labo_warranty, user=postgres, pass=secret) để
 # chạy backend bằng `go run ./cmd/api` mà không cần file .env.
 #
 #   cd deploy/dev && docker compose up -d
@@ -29,21 +29,5 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: labo_dev_redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-    ports:
-      - "6379:6379"
-    volumes:
-      - labo_dev_redis:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
 volumes:
   labo_dev_pg:
-  labo_dev_redis:

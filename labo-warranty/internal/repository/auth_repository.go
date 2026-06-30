@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"labohoangphuc/labo-warranty/internal/domain/entities"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/redis/go-redis/v9"
 )
 
 type AuthRepository interface {
@@ -18,16 +19,12 @@ type AuthRepository interface {
 	FindByID(ctx context.Context, id string) (*entities.User, error)
 }
 
-// refreshTokenKeyPrefix là tiền tố key Redis lưu refresh token theo từng user.
-const refreshTokenKeyPrefix = "auth:refresh_token:"
-
 type authRepository struct {
-	db  *sqlx.DB
-	rdb *redis.Client
+	db *sqlx.DB
 }
 
-func NewAuthRepository(db *sqlx.DB, rdb *redis.Client) AuthRepository {
-	return &authRepository{db: db, rdb: rdb}
+func NewAuthRepository(db *sqlx.DB) AuthRepository {
+	return &authRepository{db: db}
 }
 
 func (ar *authRepository) FindByEmail(ctx context.Context, email string) (*entities.User, error) {
@@ -37,26 +34,42 @@ func (ar *authRepository) FindByEmail(ctx context.Context, email string) (*entit
 	return &user, err
 }
 
+// SaveRefreshToken lưu (hoặc thay thế) refresh token của user kèm thời hạn.
+// Mỗi user chỉ giữ một refresh token (token rotation) -> UPSERT theo user_id.
 func (ar *authRepository) SaveRefreshToken(ctx context.Context, userID string, token string, duration time.Duration) error {
-	key := refreshTokenKeyPrefix + userID
-	return ar.rdb.Set(ctx, key, token, duration).Err()
+	query := `
+		INSERT INTO refresh_tokens (user_id, token, expires_at, updated_at)
+		VALUES ($1::uuid, $2, $3, CURRENT_TIMESTAMP)
+		ON CONFLICT (user_id) DO UPDATE
+			SET token = EXCLUDED.token,
+			    expires_at = EXCLUDED.expires_at,
+			    updated_at = CURRENT_TIMESTAMP`
+	_, err := ar.db.ExecContext(ctx, query, userID, token, time.Now().Add(duration))
+	return err
 }
 
 func (ar *authRepository) DeleteRefreshToken(ctx context.Context, userID string) error {
-	key := refreshTokenKeyPrefix + userID
-	return ar.rdb.Del(ctx, key).Err()
+	_, err := ar.db.ExecContext(ctx, `DELETE FROM refresh_tokens WHERE user_id = $1::uuid`, userID)
+	return err
 }
 
+// IsRefreshTokenValid kiểm tra token có khớp bản đang lưu và còn hạn không.
 func (ar *authRepository) IsRefreshTokenValid(ctx context.Context, userID string, token string) (bool, error) {
-	key := refreshTokenKeyPrefix + userID
-	savedToken, err := ar.rdb.Get(ctx, key).Result()
-	if err == redis.Nil {
-		return false, nil
+	var saved struct {
+		Token     string    `db:"token"`
+		ExpiresAt time.Time `db:"expires_at"`
 	}
-	if err != nil {
+	query := `SELECT token, expires_at FROM refresh_tokens WHERE user_id = $1::uuid`
+	if err := ar.db.GetContext(ctx, &saved, query, userID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
 		return false, err
 	}
-	return savedToken == token, nil
+	if time.Now().After(saved.ExpiresAt) {
+		return false, nil
+	}
+	return saved.Token == token, nil
 }
 
 func (ar *authRepository) UpdatePassword(ctx context.Context, userID string, newHash string) error {

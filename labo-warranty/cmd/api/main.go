@@ -33,17 +33,22 @@ func main() {
 	defer db.Close()
 	log.Println("-> [PostgreSQL]: Kết nối thông suốt, Pool đã sẵn sàng hoạt động!")
 
-	rdb, err := repository.NewRedisClient()
-	if err != nil {
-		log.Fatalf("Lỗi nghiêm trọng hệ thống(không thể kết nối đến Redis): %v", err)
+	// Tạo tài khoản admin lần đầu nếu set SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD.
+	if adminEmail, adminPass := os.Getenv("SEED_ADMIN_EMAIL"), os.Getenv("SEED_ADMIN_PASSWORD"); adminEmail != "" && adminPass != "" {
+		if created, seedErr := repository.SeedAdmin(db, adminEmail, adminPass, os.Getenv("SEED_ADMIN_NAME")); seedErr != nil {
+			log.Printf("-> [Seed Admin]: lỗi tạo admin: %v", seedErr)
+		} else if created {
+			log.Printf("-> [Seed Admin]: đã tạo tài khoản admin %s", adminEmail)
+		} else {
+			log.Printf("-> [Seed Admin]: admin %s đã tồn tại, bỏ qua", adminEmail)
+		}
 	}
-	defer rdb.Close()
-	log.Println("-> [Redis]: Kết nối thông suốt, Redis đã sẵn sàng hoạt động!")
+
 	warrantyRepo := repository.NewWarrantyRepository(db)
-	warrantyService := service.NewWarrantyService(warrantyRepo, rdb)
+	warrantyService := service.NewWarrantyService(warrantyRepo)
 	warrantyHandler := handler.NewWarrantyHandler(warrantyService)
 
-	authRepository := repository.NewAuthRepository(db, rdb)
+	authRepository := repository.NewAuthRepository(db)
 	authService := service.NewAuthService(authRepository, jwtSecret)
 	authHandler := handler.NewAuthHandler(authService)
 	if config.AppConfig.AppEnv == "production" {

@@ -1,0 +1,16 @@
+# Git & hooks
+.git
+.githooks
+.gitignore
+
+# Dependencies & build outputs (sẽ cài/build lại bên trong image)
+**/node_modules
+web/portal-spa/.next
+
+# Hạ tầng & CI không cần khi build image
+deploy
+jenkinsfile
+
+# Linh tinh
+**/*.log
+.DS_Store
