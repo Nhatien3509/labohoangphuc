@@ -58,6 +58,7 @@ func main() {
 		auth := v1.Group("/auth")
 		{
 			auth.POST("/login", authHandler.Login)
+			auth.POST("/refresh", authHandler.Refresh)
 		}
 
 		// 🔒 2. Nhóm Auth Bảo mật (Chỉ áp dụng riêng cho Logout và Change Password)
@@ -76,7 +77,12 @@ func main() {
 		adminGroup := v1.Group("/admin")
 		adminGroup.Use(middleware.AuthMiddleware([]byte(jwtSecret)))
 		{
+			adminGroup.GET("/warranty-cards", warrantyHandler.ListCards)
+			adminGroup.GET("/check-warranty-code", warrantyHandler.CheckCode)
+			adminGroup.GET("/warranty-cards/:id", warrantyHandler.GetCard)
 			adminGroup.POST("/warranty-cards", warrantyHandler.CreateCard)
+			adminGroup.PUT("/warranty-cards/:id", warrantyHandler.UpdateCard)
+			adminGroup.DELETE("/warranty-cards/:id", warrantyHandler.DeleteCard)
 		}
 	}
 

@@ -6,9 +6,9 @@ import {
   Cpu,
   Phone,
   ShieldCheck,
-  Star,
   Truck,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { SITE } from "@common/lib/core/site";
@@ -44,24 +44,31 @@ const FEATURES = [
   },
 ];
 
-const TESTIMONIALS = [
+const PRODUCTS = [
   {
-    avatar: "TH",
-    name: "BS. Trần Hoàng",
-    role: "Nha khoa Smile, Hà Nội",
-    text: "Chất lượng răng sứ từ Labo Hoàng Phúc luôn ổn định, độ chính xác cao. Đã hợp tác hơn 5 năm và rất hài lòng với dịch vụ.",
+    name: "Răng sứ Cercon",
+    image: "/products/cercon.png",
+    desc: "Răng sứ không kim loại được tạo nên hoàn toàn từ khối sứ nguyên chất, đảm bảo tính thuần nhất, không gây kích ứng nướu.",
   },
   {
-    avatar: "NL",
-    name: "BS. Nguyễn Lan",
-    role: "Nha khoa Việt Smile, TP.HCM",
-    text: "Giao hàng nhanh, đóng gói cẩn thận. Đặc biệt dịch vụ hỗ trợ kỹ thuật rất tận tình, luôn sẵn sàng tư vấn.",
+    name: "Răng sứ Katana",
+    image: "/products/katana.png",
+    desc: "Răng sứ không kim loại cao cấp hai lớp: khung sườn zirconia chịu lực bên trong, lớp sứ tạo màu bên ngoài giống răng thật.",
   },
   {
-    avatar: "PM",
-    name: "BS. Phạm Minh",
-    role: "Nha khoa Quốc tế, Đà Nẵng",
-    text: "Răng sứ Venus thẩm mỹ rất tự nhiên, bệnh nhân của tôi luôn hài lòng. Giá cả hợp lý, cạnh tranh.",
+    name: "Răng sứ Emax",
+    image: "/products/emax.png",
+    desc: "Phổ biến trong kỹ thuật inlay – onlay. Công nghệ press cho phép tạo ra những chi tiết siêu nhỏ với độ chính xác cao nhất.",
+  },
+  {
+    name: "Răng sứ Ceramill",
+    image: "/products/ceramill.png",
+    desc: "Gia công trên hệ thống CAD/CAM Ceramill (Đức), độ chính xác cao, phục hình thẩm mỹ tự nhiên.",
+  },
+  {
+    name: "Răng sứ HT-Smile",
+    image: "/products/htsmile.png",
+    desc: "Sứ zirconia độ trong cao từ pritidenta (Đức), thuộc tập đoàn IMES-ICORE, phục hình bền chắc, thẩm mỹ tự nhiên với chế độ bảo hành dài lâu.",
   },
 ];
 
@@ -74,8 +81,7 @@ export default function HomePage() {
           <div className="grid items-center gap-16 lg:grid-cols-2">
             <div>
               <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl">
-                Trung tâm Phục hình <span className="text-brand">Nha khoa</span>{" "}
-                Hà Nội
+                Trung tâm Phục Hình <span className="text-brand">Răng</span>
               </h1>
               <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
                 Chuyên cung cấp các sản phẩm răng sứ cao cấp với công nghệ
@@ -90,10 +96,10 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <a
-                  href={`tel:${SITE.phoneRaw}`}
+                  href={`tel:${SITE.hotlineRaw}`}
                   className="inline-flex items-center gap-2 rounded-xl border-[1.5px] border-border px-7 py-3.5 text-[15px] font-semibold transition-colors hover:border-brand hover:bg-brand-soft hover:text-brand"
                 >
-                  Gọi ngay: {SITE.phone}
+                  Gọi ngay: {SITE.hotline}
                 </a>
               </div>
               <div className="mt-12 flex flex-wrap gap-12">
@@ -112,8 +118,16 @@ export default function HomePage() {
 
             <div className="relative">
               <div className="rounded-3xl bg-surface p-8 shadow-2xl">
-                <div className="mb-6 flex aspect-[16/10] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-brand-soft to-border">
-                  <BadgeCheck className="h-16 w-16 text-brand/40" />
+                <div className="relative mb-6 aspect-[16/10] overflow-hidden rounded-2xl bg-gradient-to-br from-brand-soft to-border">
+                  <Image
+                    src="/banner.png"
+                    alt="Labo Hoàng Phúc"
+                    fill
+                    priority
+                    quality={100}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                  />
                 </div>
                 <h3 className="text-xl font-semibold">Tra cứu nhanh</h3>
                 <p className="mb-4 mt-1 text-sm text-muted-foreground">
@@ -157,36 +171,43 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="bg-ink px-6 py-20 text-white">
+      {/* PRODUCTS */}
+      <section className="px-6 py-20">
         <div className="mx-auto max-w-container">
-          <h2 className="mb-10 text-3xl font-bold">
-            Đối tác nói gì về chúng tôi
-          </h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {TESTIMONIALS.map((t) => (
-              <div
-                key={t.name}
-                className="rounded-2xl border border-white/10 bg-white/[0.06] p-7"
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold tracking-tight">Sản phẩm</h2>
+            <p className="mx-auto mt-3 max-w-xl text-[15px] text-muted-foreground">
+              Đa dạng dòng răng sứ cao cấp, đáp ứng mọi nhu cầu phục hình thẩm mỹ
+              và chức năng ăn nhai.
+            </p>
+          </div>
+
+          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            {PRODUCTS.map((p) => (
+              <article
+                key={p.name}
+                className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:-translate-y-1 hover:shadow-xl"
               >
-                <div className="mb-4 flex gap-1 text-amber-400">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-current" />
-                  ))}
-                </div>
-                <p className="mb-5 text-[15px] leading-relaxed text-white/90">
-                  &ldquo;{t.text}&rdquo;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand font-semibold text-brand-foreground">
-                    {t.avatar}
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">{t.name}</div>
-                    <div className="text-[13px] text-white/60">{t.role}</div>
+                <div className="aspect-[3/2] overflow-hidden p-5">
+                  <div className="relative h-full w-full">
+                    <Image
+                      src={p.image}
+                      alt={p.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
                 </div>
-              </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold tracking-tight group-hover:text-brand">
+                    {p.name}
+                  </h3>
+                  <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                    {p.desc}
+                  </p>
+                </div>
+              </article>
             ))}
           </div>
         </div>
@@ -202,11 +223,11 @@ export default function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <a
-              href={`tel:${SITE.phoneRaw}`}
+              href={`tel:${SITE.hotlineRaw}`}
               className="inline-flex items-center gap-2 rounded-xl bg-brand px-7 py-3.5 text-[15px] font-semibold text-brand-foreground transition-all hover:-translate-y-0.5 hover:bg-brand-dark"
             >
               <Phone className="h-[18px] w-[18px]" />
-              Gọi ngay: {SITE.phone}
+              Gọi ngay: {SITE.hotline}
             </a>
             <Link
               href="/tra-cuu"

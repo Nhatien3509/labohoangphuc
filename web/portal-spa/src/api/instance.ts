@@ -7,6 +7,7 @@ import type {
   ReqInit,
 } from "@/api/types";
 import { env } from "@/env";
+import { getAccessToken } from "@/api/session";
 
 /**
  * HTTP client tối giản cho backend Go (labo-warranty).
@@ -39,13 +40,19 @@ async function request<T>(
   endpoint: string,
   init: ReqInit & { method: string },
 ): Promise<FetchResult<T>> {
-  const { payload, headers, ...rest } = init;
+  const { payload, headers, auth, ...rest } = init;
+  const authHeader: Record<string, string> = {};
+  if (auth) {
+    const token = getAccessToken();
+    if (token) authHeader.authorization = `Bearer ${token}`;
+  }
   try {
     const response = await fetch(endpoint, {
       ...rest,
       headers: {
         accept: "application/json",
         ...(payload ? { "content-type": "application/json" } : {}),
+        ...authHeader,
         ...headers,
       },
       body: payload ? JSON.stringify(payload) : undefined,
@@ -72,7 +79,9 @@ async function request<T>(
       error:
         typeof envelope?.error === "string"
           ? envelope.error
-          : "INTERNAL_SERVER_ERROR",
+          : response.status === 401
+            ? "UNAUTHORIZED"
+            : "INTERNAL_SERVER_ERROR",
     };
   } catch (error) {
     console.error("[api] fetch error:", error);

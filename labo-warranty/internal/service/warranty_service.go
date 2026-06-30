@@ -10,7 +10,7 @@ import (
 	errs "labohoangphuc/labo-warranty/internal/domain/errors"
 	"labohoangphuc/labo-warranty/internal/repository"
 	"log"
-	"regexp"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,42 +24,50 @@ type WarrantyService interface {
 	// Nghiệp vụ dành cho Admin/Staff phát hành thẻ
 	CreateCard(ctx context.Context, req *dto.AdminCreateWarrantyRequest, adminID string) (*dto.AdminWarrantyResponse, error)
 
+	// Danh sách thẻ cho Admin panel
+	ListCards(ctx context.Context, page, limit int) ([]*dto.AdminWarrantyResponse, error)
+
+	// Kiểm tra mã thẻ đã tồn tại hay chưa (Admin)
+	CodeExists(ctx context.Context, code string) (bool, error)
+
+	// Xem chi tiết / sửa / xoá thẻ (Admin)
+	GetCard(ctx context.Context, id string) (*dto.AdminWarrantyResponse, error)
+	UpdateCard(ctx context.Context, id string, req *dto.AdminUpdateWarrantyRequest) (*dto.AdminWarrantyResponse, error)
+	DeleteCard(ctx context.Context, id string) error
+
 	// Nghiệp vụ dành cho Khách vãng lai tra cứu công khai (Có tích hợp Redis Cache + Async Log)
 	PublicLookup(ctx context.Context, code string, ipAddress, userAgent string) (*dto.PublicWarrantyLookupResponse, error)
 }
 
 type warrantyService struct {
-	wr        repository.WarrantyRepository
-	rdb       *redis.Client
-	codeRegex *regexp.Regexp
+	wr  repository.WarrantyRepository
+	rdb *redis.Client
 }
 
 func NewWarrantyService(wr repository.WarrantyRepository, rdb *redis.Client) WarrantyService {
 	return &warrantyService{
-		wr:        wr,
-		rdb:       rdb,
-		codeRegex: regexp.MustCompile(`^BH-\d+$`),
+		wr:  wr,
+		rdb: rdb,
 	}
 }
 
 func (ws *warrantyService) CreateCard(ctx context.Context, req *dto.AdminCreateWarrantyRequest, adminID string) (*dto.AdminWarrantyResponse, error) {
-	clinicUUID, err := uuid.Parse(req.ClinicID)
-	if err != nil {
-		return nil, fmt.Errorf("định dạng clinic_id không hợp lệ")
-	}
-	productUUID, err := uuid.Parse(req.ProductID)
-	if err != nil {
-		return nil, fmt.Errorf("định dạng product_id không hợp lệ")
-	}
 	adminUUID, _ := uuid.Parse(adminID)
 
-	warrantyMonths := 84
+	// Mã thẻ: admin có thể tự nhập tuỳ ý; bỏ trống thì để repository tự sinh.
+	code := strings.TrimSpace(req.Code)
+
+	// Số tháng bảo hành lấy từ request; bỏ trống thì mặc định 84 tháng.
+	warrantyMonths := req.WarrantyMonths
+	if warrantyMonths <= 0 {
+		warrantyMonths = 84
+	}
 	expiryDate := req.IssueDate.AddDate(0, warrantyMonths, 0)
+	// ClinicID / ProductID để nil -> lưu NULL (đã bỏ khỏi nghiệp vụ tạo thẻ).
 	cardEntity := &entities.WarrantyCard{
+		Code:           code,
 		CustomerName:   req.CustomerName,
 		CustomerPhone:  &req.CustomerPhone,
-		ClinicID:       &clinicUUID,
-		ProductID:      productUUID,
 		LabName:        req.LabName,
 		ToothPositions: pq.Int64Array(req.ToothPositions),
 		WarrantyMonths: warrantyMonths,
@@ -76,13 +84,103 @@ func (ws *warrantyService) CreateCard(ctx context.Context, req *dto.AdminCreateW
 	return ToAdminWarrantyResponse(cardEntity), nil
 }
 
+func (ws *warrantyService) ListCards(ctx context.Context, page, limit int) ([]*dto.AdminWarrantyResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 200 {
+		limit = 50
+	}
+	offset := (page - 1) * limit
+
+	cards, err := ws.wr.ListCards(ctx, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*dto.AdminWarrantyResponse, 0, len(cards))
+	for _, card := range cards {
+		res = append(res, ToAdminWarrantyResponse(card))
+	}
+	return res, nil
+}
+
+func (ws *warrantyService) CodeExists(ctx context.Context, code string) (bool, error) {
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return false, nil
+	}
+	_, err := ws.wr.FindByCode(ctx, code)
+	if err != nil {
+		if errors.Is(err, errs.ErrCardNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (ws *warrantyService) GetCard(ctx context.Context, id string) (*dto.AdminWarrantyResponse, error) {
+	card, err := ws.wr.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return ToAdminWarrantyResponse(card), nil
+}
+
+func (ws *warrantyService) UpdateCard(ctx context.Context, id string, req *dto.AdminUpdateWarrantyRequest) (*dto.AdminWarrantyResponse, error) {
+	// Lấy bản ghi hiện có để giữ nguyên created_at/created_by, chỉ sửa các trường cho phép.
+	card, err := ws.wr.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	oldCode := card.Code
+
+	warrantyMonths := req.WarrantyMonths
+	if warrantyMonths <= 0 {
+		warrantyMonths = card.WarrantyMonths
+	}
+
+	card.Code = strings.TrimSpace(req.Code)
+	card.CustomerName = req.CustomerName
+	card.CustomerPhone = &req.CustomerPhone
+	card.LabName = req.LabName
+	card.ToothPositions = pq.Int64Array(req.ToothPositions)
+	card.WarrantyMonths = warrantyMonths
+	card.IssueDate = req.IssueDate
+	card.ExpiryDate = req.IssueDate.AddDate(0, warrantyMonths, 0)
+	card.Status = req.Status
+	card.Note = &req.Note
+
+	if err := ws.wr.UpdateCard(ctx, card); err != nil {
+		return nil, err
+	}
+
+	// Vô hiệu hoá cache tra cứu công khai cho cả mã cũ lẫn mã mới.
+	_ = ws.rdb.Del(ctx, WarrantyCard+oldCode, WarrantyCard+card.Code).Err()
+
+	return ToAdminWarrantyResponse(card), nil
+}
+
+func (ws *warrantyService) DeleteCard(ctx context.Context, id string) error {
+	card, err := ws.wr.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if err := ws.wr.DeleteCard(ctx, id); err != nil {
+		return err
+	}
+	_ = ws.rdb.Del(ctx, WarrantyCard+card.Code).Err()
+	return nil
+}
+
 func ToAdminWarrantyResponse(m *entities.WarrantyCard) *dto.AdminWarrantyResponse {
 	// Khởi tạo DTO với các trường dữ liệu cơ bản chắc chắn không NULL
 	res := &dto.AdminWarrantyResponse{
 		ID:             m.ID.String(),
 		Code:           m.Code,
 		CustomerName:   m.CustomerName,
-		ProductID:      m.ProductID.String(),
+		LabName:        m.LabName,
 		ToothPositions: m.ToothPositions,
 		WarrantyMonths: m.WarrantyMonths,
 		// Định dạng ngày tháng sang chuỗi YYYY-MM-DD theo yêu cầu đặc tả giao diện (UI Spec)
@@ -99,10 +197,6 @@ func ToAdminWarrantyResponse(m *entities.WarrantyCard) *dto.AdminWarrantyRespons
 		res.CustomerPhone = *m.CustomerPhone
 	}
 
-	if m.ClinicID != nil {
-		res.ClinicID = m.ClinicID.String()
-	}
-
 	if m.CreatedBy != nil {
 		res.CreatedBy = m.CreatedBy.String()
 	}
@@ -115,7 +209,10 @@ func ToAdminWarrantyResponse(m *entities.WarrantyCard) *dto.AdminWarrantyRespons
 }
 
 func (ws *warrantyService) PublicLookup(ctx context.Context, code string, ipAddress, userAgent string) (*dto.PublicWarrantyLookupResponse, error) {
-	if !ws.codeRegex.MatchString(code) {
+	// Mã thẻ nhập tuỳ ý nên chỉ kiểm tra cơ bản (không rỗng, độ dài hợp lý);
+	// không khớp dữ liệu thì trả "không tìm thấy" như bình thường.
+	code = strings.TrimSpace(code)
+	if code == "" || len(code) > 64 {
 		return nil, errs.ErrInvalidCodeFormat
 	}
 	cacheKey := fmt.Sprint(WarrantyCard + code)

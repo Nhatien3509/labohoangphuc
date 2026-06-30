@@ -41,6 +41,25 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.NewSuccessResponse(res))
 }
 
+func (ah *AuthHandler) Refresh(c *gin.Context) {
+	var req dto.RefreshTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NewErrorResponse(errs.ErrInvalidInput.Error()))
+		return
+	}
+
+	res, err := ah.as.Refresh(c.Request.Context(), req.RefreshToken)
+	if err != nil {
+		if err == errs.ErrInvalidRefreshToken {
+			c.JSON(http.StatusUnauthorized, dto.NewErrorResponse("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại"))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, dto.NewErrorResponse("Lỗi xử lý nội bộ hệ thống"))
+		return
+	}
+	c.JSON(http.StatusOK, dto.NewSuccessResponse(res))
+}
+
 func (ah *AuthHandler) Logout(c *gin.Context) {
 	userIDVal, exists := c.Get("user_id")
 	if !exists {

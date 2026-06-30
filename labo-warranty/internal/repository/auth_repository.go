@@ -18,6 +18,9 @@ type AuthRepository interface {
 	FindByID(ctx context.Context, id string) (*entities.User, error)
 }
 
+// refreshTokenKeyPrefix là tiền tố key Redis lưu refresh token theo từng user.
+const refreshTokenKeyPrefix = "auth:refresh_token:"
+
 type authRepository struct {
 	db  *sqlx.DB
 	rdb *redis.Client
@@ -35,17 +38,17 @@ func (ar *authRepository) FindByEmail(ctx context.Context, email string) (*entit
 }
 
 func (ar *authRepository) SaveRefreshToken(ctx context.Context, userID string, token string, duration time.Duration) error {
-	key := "auth:refresh-token:" + userID
+	key := refreshTokenKeyPrefix + userID
 	return ar.rdb.Set(ctx, key, token, duration).Err()
 }
 
 func (ar *authRepository) DeleteRefreshToken(ctx context.Context, userID string) error {
-	key := "auth:refresh_token:" + userID
+	key := refreshTokenKeyPrefix + userID
 	return ar.rdb.Del(ctx, key).Err()
 }
 
 func (ar *authRepository) IsRefreshTokenValid(ctx context.Context, userID string, token string) (bool, error) {
-	key := "auth:refresh_token:" + userID
+	key := refreshTokenKeyPrefix + userID
 	savedToken, err := ar.rdb.Get(ctx, key).Result()
 	if err == redis.Nil {
 		return false, nil

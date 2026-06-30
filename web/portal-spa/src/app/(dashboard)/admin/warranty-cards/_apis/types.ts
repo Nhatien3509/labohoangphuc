@@ -8,14 +8,19 @@ export type WarrantyStatus = "active" | "expired" | "revoked";
 
 /** Payload tạo thẻ — gửi POST /api/v1/admin/warranty-cards. */
 export interface CreateWarrantyPayload {
+  code?: string; // mã thẻ; để trống thì BE tự sinh
   customer_name: string;
   customer_phone: string;
-  clinic_id: string; // UUID
-  product_id: string; // UUID
   lab_name: string;
   tooth_positions: number[];
+  warranty_months: number; // số tháng bảo hành
   issue_date: string; // ISO date YYYY-MM-DD
   note?: string;
+}
+
+/** Payload sửa thẻ — gửi PUT /api/v1/admin/warranty-cards/:id (có thêm status). */
+export interface UpdateWarrantyPayload extends CreateWarrantyPayload {
+  status: WarrantyStatus;
 }
 
 /** Thẻ trả về đầy đủ cho admin. */
@@ -24,8 +29,6 @@ export interface AdminWarranty {
   code: string;
   customer_name: string;
   customer_phone: string;
-  clinic_id: string;
-  product_id: string;
   lab_name: string;
   tooth_positions: number[];
   warranty_months: number;

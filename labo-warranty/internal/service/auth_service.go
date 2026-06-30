@@ -18,6 +18,7 @@ type AuthService interface {
 	Login(ctx context.Context, req *dto.LoginRequest) (*dto.TokenResponse, error)
 	Logout(ctx context.Context, userID string) error
 	ChangePassWord(ctx context.Context, userID string, req *dto.ChangPassWord) error
+	Refresh(ctx context.Context, refreshToken string) (*dto.TokenResponse, error)
 }
 
 type authService struct {
@@ -87,6 +88,49 @@ func (as *authService) generateToken(userId string, role entities.UserRole, dura
 
 func (as *authService) Logout(ctx context.Context, userID string) error {
 	return as.ar.DeleteRefreshToken(ctx, userID)
+}
+
+// Refresh cấp lại access token (và xoay refresh token) từ một refresh token hợp lệ.
+// Quy trình: xác thực chữ ký JWT -> đối chiếu với refresh token đang lưu trong Redis
+// -> sinh cặp token mới -> lưu refresh token mới (token rotation).
+func (as *authService) Refresh(ctx context.Context, refreshToken string) (*dto.TokenResponse, error) {
+	claims := &dto.AppClaims{}
+	token, err := jwt.ParseWithClaims(refreshToken, claims, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
+		return as.jwtSecret, nil
+	})
+	if err != nil || !token.Valid || claims.UserID == "" {
+		return nil, errs.ErrInvalidRefreshToken
+	}
+
+	valid, err := as.ar.IsRefreshTokenValid(ctx, claims.UserID, refreshToken)
+	if err != nil {
+		return nil, errors.New("lỗi hệ thống khi kiểm tra phiên đăng nhập")
+	}
+	if !valid {
+		return nil, errs.ErrInvalidRefreshToken
+	}
+
+	role := entities.UserRole(claims.Role)
+	accessToken, err := as.generateToken(claims.UserID, role, 15*time.Minute)
+	if err != nil {
+		return nil, errors.New("lỗi hệ thống khi khởi tạo mã xác thực")
+	}
+	newRefreshToken, err := as.generateToken(claims.UserID, role, 7*24*time.Hour)
+	if err != nil {
+		return nil, errors.New("lỗi hệ thống khi khởi tạo mã xác thực")
+	}
+
+	if err := as.ar.SaveRefreshToken(ctx, claims.UserID, newRefreshToken, 7*24*time.Hour); err != nil {
+		return nil, errors.New("không thể khởi tạo phiên đăng nhập")
+	}
+
+	return &dto.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: newRefreshToken,
+	}, nil
 }
 
 func (as *authService) ChangePassWord(ctx context.Context, userID string, req *dto.ChangPassWord) error {

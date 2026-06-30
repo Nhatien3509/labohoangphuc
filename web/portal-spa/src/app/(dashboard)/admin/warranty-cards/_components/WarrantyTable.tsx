@@ -11,6 +11,7 @@ import { formatDate } from "@common/lib/helpers/datetime";
 import { WARRANTY_STATUS_LABEL } from "@common/lib/helpers/warranty";
 
 import type { AdminWarranty, WarrantyStatus } from "../_apis/types";
+import { WarrantyActions } from "./WarrantyActions";
 
 const STATUS_VARIANT: Record<
   WarrantyStatus,
@@ -41,6 +42,7 @@ export function WarrantyTable({ items }: { items: AdminWarranty[] }) {
             <TableHead>Phát hành</TableHead>
             <TableHead>Hết hạn</TableHead>
             <TableHead>Trạng thái</TableHead>
+            <TableHead className="text-right">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -55,6 +57,9 @@ export function WarrantyTable({ items }: { items: AdminWarranty[] }) {
                 <Badge variant={STATUS_VARIANT[item.status]}>
                   {WARRANTY_STATUS_LABEL[item.status] ?? item.status}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                <WarrantyActions item={item} />
               </TableCell>
             </TableRow>
           ))}

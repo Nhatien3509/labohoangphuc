@@ -9,6 +9,11 @@
 export interface ReqInit extends RequestInit {
   /** Body JSON sẽ được JSON.stringify trước khi gửi. */
   payload?: Record<string, unknown> | Record<string, unknown>[];
+  /**
+   * Gắn `Authorization: Bearer <access_token>` đọc từ cookie phiên đăng nhập.
+   * Dùng cho các endpoint admin / auth cần xác thực.
+   */
+  auth?: boolean;
 }
 
 export interface GetReqInit extends Omit<ReqInit, "payload"> {

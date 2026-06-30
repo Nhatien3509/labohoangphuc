@@ -17,6 +17,7 @@ export async function listWarranties(): Promise<
   FetchResult<AdminWarranty[]>
 > {
   const res = await apiInstance.get<AdminWarranty[]>("admin/warranty-cards", {
+    auth: true,
     cache: "no-store",
   });
 

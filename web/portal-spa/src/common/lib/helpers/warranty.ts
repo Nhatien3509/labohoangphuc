@@ -3,6 +3,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CODE_FORMAT: "Mã thẻ không đúng định dạng.",
   WARRANTY_NOT_FOUND: "Không tìm thấy thẻ bảo hành với mã này.",
   CODE_DUPLICATED: "Mã thẻ đã tồn tại.",
+  UNAUTHORIZED: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
   NETWORK_ERROR: "Không kết nối được máy chủ. Vui lòng thử lại.",
   INTERNAL_SERVER_ERROR: "Lỗi hệ thống. Vui lòng thử lại sau.",
 };

@@ -23,10 +23,11 @@ import { Label } from "@common/components/ui/label";
 import { Textarea } from "@common/components/ui/textarea";
 import { errorMessage } from "@common/lib/helpers/warranty";
 
-import { createWarrantyAction } from "../_apis/actions";
+import { checkCodeAction, createWarrantyAction } from "../_apis/actions";
 import {
   type CreateWarrantyForm,
   DEFAULT_LAB_NAME,
+  DEFAULT_WARRANTY_MONTHS,
   createWarrantySchema,
   parseToothPositions,
 } from "../_lib/const";
@@ -54,27 +55,69 @@ export function CreateWarrantyDialog() {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
+  const [checking, setChecking] = useState(false);
+
   const {
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<CreateWarrantyForm>({
     resolver: zodResolver(createWarrantySchema),
-    defaultValues: { lab_name: DEFAULT_LAB_NAME },
+    defaultValues: {
+      lab_name: DEFAULT_LAB_NAME,
+      warranty_months: DEFAULT_WARRANTY_MONTHS,
+    },
   });
+
+  /** Gọi API kiểm tra trùng mã. Lỗi mạng coi như không trùng (để BE chặn lần cuối). */
+  async function isDuplicate(code: string): Promise<boolean> {
+    const trimmed = code.trim();
+    if (!trimmed) return false;
+    setChecking(true);
+    try {
+      const { exists } = await checkCodeAction(trimmed);
+      return exists;
+    } catch {
+      return false;
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  async function onCodeBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const code = e.target.value.trim();
+    if (!code) return;
+    if (await isDuplicate(code)) {
+      setError("code", { type: "manual", message: "Mã thẻ đã tồn tại" });
+    } else {
+      clearErrors("code");
+    }
+  }
 
   function onSubmit(values: CreateWarrantyForm) {
     startTransition(async () => {
+      // Chặn lưu nếu mã đã tồn tại (kiểm tra lần cuối trước khi tạo).
+      if (await isDuplicate(values.code)) {
+        setError("code", { type: "manual", message: "Mã thẻ đã tồn tại" });
+        return;
+      }
       const res = await createWarrantyAction({
         ...values,
         tooth_positions: parseToothPositions(values.tooth_positions),
       });
       if (res.success) {
         toast.success(`Đã tạo thẻ ${res.data?.code ?? ""}`);
-        reset({ lab_name: DEFAULT_LAB_NAME });
+        reset({
+          lab_name: DEFAULT_LAB_NAME,
+          warranty_months: DEFAULT_WARRANTY_MONTHS,
+        });
         setOpen(false);
         router.refresh();
+      } else if (res.error === "CODE_DUPLICATED") {
+        setError("code", { type: "manual", message: "Mã thẻ đã tồn tại" });
       } else {
         toast.error(errorMessage(res.error));
       }
@@ -101,20 +144,38 @@ export function CreateWarrantyDialog() {
           onSubmit={handleSubmit(onSubmit)}
           className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
+          <div className="sm:col-span-2">
+            <Field label="Mã bảo hành" error={errors.code?.message}>
+              <Input
+                {...register("code", { onBlur: onCodeBlur })}
+                placeholder="Nhập mã thẻ, vd BH-20260001"
+              />
+              {checking ? (
+                <p className="text-xs text-muted-foreground">
+                  Đang kiểm tra mã...
+                </p>
+              ) : null}
+            </Field>
+          </div>
           <Field label="Tên khách hàng" error={errors.customer_name?.message}>
             <Input {...register("customer_name")} />
           </Field>
           <Field label="Số điện thoại" error={errors.customer_phone?.message}>
             <Input {...register("customer_phone")} />
           </Field>
-          <Field label="Clinic ID (UUID)" error={errors.clinic_id?.message}>
-            <Input {...register("clinic_id")} placeholder="xxxxxxxx-xxxx-..." />
-          </Field>
-          <Field label="Product ID (UUID)" error={errors.product_id?.message}>
-            <Input {...register("product_id")} placeholder="xxxxxxxx-xxxx-..." />
-          </Field>
           <Field label="Lab" error={errors.lab_name?.message}>
             <Input {...register("lab_name")} />
+          </Field>
+          <Field
+            label="Số tháng bảo hành"
+            error={errors.warranty_months?.message}
+          >
+            <Input
+              type="number"
+              min={1}
+              {...register("warranty_months")}
+              placeholder="84"
+            />
           </Field>
           <Field label="Ngày phát hành" error={errors.issue_date?.message}>
             <Input type="date" {...register("issue_date")} />
@@ -141,7 +202,7 @@ export function CreateWarrantyDialog() {
             >
               Huỷ
             </Button>
-            <Button type="submit" disabled={pending}>
+            <Button type="submit" disabled={pending || checking}>
               {pending ? "Đang tạo..." : "Tạo thẻ"}
             </Button>
           </DialogFooter>

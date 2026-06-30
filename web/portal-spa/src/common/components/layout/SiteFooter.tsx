@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { SITE } from "@common/lib/core/site";
@@ -9,15 +10,19 @@ export function SiteFooter() {
       <div className="mx-auto max-w-container px-6 pb-8 pt-16">
         <div className="grid gap-12 md:grid-cols-[2fr_1fr_1fr]">
           <div>
-            <Link href="/" className="flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-lg font-bold text-brand-foreground">
-                L
-              </span>
+            <Link href="/" className="flex items-center gap-3">
+              <Image
+                src="/products/labo.jpg"
+                alt="Labo Hoàng Phúc"
+                width={1392}
+                height={1130}
+                className="h-12 w-auto"
+              />
               <span className="text-lg font-bold">{SITE.name}</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-white/70">
-              {SITE.tagline} Hà Nội — Chuyên cung cấp các sản phẩm răng sứ cao
-              cấp với công nghệ CAD/CAM hiện đại.
+              {SITE.tagline} — Chuyên cung cấp các sản phẩm răng sứ cao cấp với
+              công nghệ CAD/CAM hiện đại.
             </p>
           </div>
 
@@ -52,7 +57,15 @@ export function SiteFooter() {
                   href={`tel:${SITE.phoneRaw}`}
                   className="text-white/85 hover:text-white"
                 >
-                  {SITE.phone}
+                  Điện thoại: {SITE.phone}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`tel:${SITE.hotlineRaw}`}
+                  className="text-white/85 hover:text-white"
+                >
+                  Hotline: {SITE.hotline}
                 </a>
               </li>
               <li>
@@ -61,16 +74,6 @@ export function SiteFooter() {
                   className="text-white/85 hover:text-white"
                 >
                   {SITE.email}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={SITE.websiteUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-white/85 hover:text-white"
-                >
-                  {SITE.website}
                 </a>
               </li>
             </ul>

@@ -32,3 +32,7 @@ type ResetPasswordRequest struct {
 type ForgotPasswordRequest struct {
 	Email string `json:"email" binding:"required,email"`
 }
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}

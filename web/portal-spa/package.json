@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 4800",
+    "dev": "next dev -p 3600",
     "build": "next build",
-    "start": "next start -p 4800",
+    "start": "next start -p 3600",
     "lint": "next lint",
     "lint:fix": "next lint --fix && prettier --write .",
     "format": "prettier --check .",

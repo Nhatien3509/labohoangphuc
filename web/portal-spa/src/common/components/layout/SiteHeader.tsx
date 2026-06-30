@@ -1,6 +1,7 @@
 "use client";
 
 import { Phone } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -20,12 +21,14 @@ export function SiteHeader() {
     <nav className="fixed inset-x-0 top-0 z-50 h-20 border-b border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto flex h-full max-w-container items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-lg font-bold text-brand-foreground">
-            L
-          </span>
-          <span className="text-lg font-bold tracking-tight">
-            Labo <span className="text-brand">Hoàng Phúc</span>
-          </span>
+          <Image
+            src="/products/labo.jpg"
+            alt="Labo Hoàng Phúc"
+            width={1392}
+            height={1130}
+            priority
+            className="h-16 w-auto"
+          />
         </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
@@ -53,11 +56,11 @@ export function SiteHeader() {
         </ul>
 
         <a
-          href={`tel:${SITE.phoneRaw}`}
+          href={`tel:${SITE.hotlineRaw}`}
           className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-dark"
         >
           <Phone className="h-4 w-4" />
-          <span className="hidden sm:inline">{SITE.phone}</span>
+          <span className="hidden sm:inline">{SITE.hotline}</span>
         </a>
       </div>
     </nav>

@@ -62,17 +62,33 @@ BACKEND_URL=http://localhost:8080
 
 Endpoint đang dùng:
 
-| FE | Backend |
-|---|---|
-| `tra-cuu` (`_apis/server.ts`)        | `GET /api/v1/warranty/:code` |
-| `warranty-cards` create (`actions.ts`) | `POST /api/v1/admin/warranty-cards` |
-| `warranty-cards` list (`server.ts`)  | `GET /api/v1/admin/warranty-cards` — **BE chưa có**, FE trả rỗng khi 404 |
+| FE | Backend | Auth |
+|---|---|---|
+| `login` (`@common/auth/actions.ts`)    | `POST /api/v1/auth/login` | công khai |
+| `middleware` tự làm mới token          | `POST /api/v1/auth/refresh` | refresh token |
+| `UserMenu` đăng xuất (`@common/auth`)  | `POST /api/v1/auth/logout` | Bearer |
+| `UserMenu` đổi mật khẩu (`@common/auth`) | `POST /api/v1/auth/change-password` | Bearer |
+| `tra-cuu` (`_apis/server.ts`)          | `GET /api/v1/warranty/:code` | công khai |
+| `warranty-cards` list (`server.ts`)    | `GET /api/v1/admin/warranty-cards?page=&limit=` | Bearer |
+| `warranty-cards` check trùng mã (`actions.ts`) | `GET /api/v1/admin/check-warranty-code?code=` | Bearer |
+| `warranty-cards` chi tiết              | `GET /api/v1/admin/warranty-cards/:id` | Bearer |
+| `warranty-cards` create (`actions.ts`) | `POST /api/v1/admin/warranty-cards` | Bearer |
+| `warranty-cards` sửa (`actions.ts`)    | `PUT /api/v1/admin/warranty-cards/:id` | Bearer |
+| `warranty-cards` xoá (`actions.ts`)    | `DELETE /api/v1/admin/warranty-cards/:id` | Bearer |
+
+### Xác thực
+
+- Đăng nhập lưu `access_token`/`refresh_token` vào **cookie httpOnly** (`src/api/session.ts`).
+- `apiInstance` gắn `Authorization: Bearer` khi gọi với tuỳ chọn `{ auth: true }`.
+- `src/middleware.ts` bảo vệ `/admin/:path*`: access token còn hạn → cho qua;
+  hết hạn (sống ~15 phút) nhưng còn refresh token → gọi `/auth/refresh` và ghi
+  cặp token mới vào cookie; không refresh được → điều hướng về `/login`.
 
 ## Chạy
 
 ```bash
 npm install
-npm run dev      # http://localhost:4800  → "/" redirect sang /tra-cuu
+npm run dev      # http://localhost:3600  → "/" redirect sang /tra-cuu
 ```
 
 Kiểm tra trước khi commit:

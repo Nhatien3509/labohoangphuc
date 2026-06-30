@@ -22,7 +22,7 @@ type WarrantyCard struct {
 	CustomerName   string         `db:"customer_name" json:"customer_name"`
 	CustomerPhone  *string        `db:"customer_phone" json:"-"` // Ẩn hoàn toàn khỏi JSON khi public tra cứu [cite: 493, 567]
 	ClinicID       *uuid.UUID     `db:"clinic_id" json:"clinic_id,omitempty"`
-	ProductID      uuid.UUID      `db:"product_id" json:"product_id"`
+	ProductID      *uuid.UUID     `db:"product_id" json:"product_id,omitempty"`
 	LabName        string         `db:"lab_name" json:"lab_name"`
 	Quantity       int            `db:"quantity" json:"quantity"`
 	ToothPositions pq.Int64Array  `db:"tooth_positions" json:"tooth_positions"` // Kiểu slice thuần của Go, pgx/v5 tự động hỗ trợ map từ int[]
