@@ -7,9 +7,8 @@
 **/node_modules
 web/portal-spa/.next
 
-# Hạ tầng & CI không cần khi build image
+# Hạ tầng không cần khi build image
 deploy
-jenkinsfile
 
 # Linh tinh
 **/*.log
