@@ -53,6 +53,24 @@ type AdminWarrantyResponse struct {
 	UpdatedAt      time.Time               `json:"updated_at"`
 }
 
+// WarrantyMonthlyStat: số liệu 1 tháng cho biểu đồ dashboard.
+type WarrantyMonthlyStat struct {
+	Month string `json:"month"` // "YYYY-MM"
+	New   int    `json:"new"`   // Số thẻ tạo mới trong tháng
+	Total int    `json:"total"` // Tổng số thẻ luỹ kế đến hết tháng
+}
+
+// WarrantyStatsResponse: thống kê tổng quan cho trang dashboard admin.
+type WarrantyStatsResponse struct {
+	Total        int                   `json:"total"`          // Tổng số thẻ
+	Active       int                   `json:"active"`         // Đang hoạt động
+	Expired      int                   `json:"expired"`        // Hết hạn
+	Revoked      int                   `json:"revoked"`        // Đã thu hồi
+	NewThisMonth int                   `json:"new_this_month"` // Thẻ tạo mới tháng này
+	NewThisYear  int                   `json:"new_this_year"`  // Thẻ tạo mới năm nay
+	Monthly      []WarrantyMonthlyStat `json:"monthly"`        // 12 tháng gần nhất
+}
+
 type PublicWarrantyLookupResponse struct {
 	Code           string  `json:"code"`            // MÃ SỐ THẺ (warranty_cards.code) [cite: 129]
 	CustomerName   string  `json:"customer_name"`   // TÊN KHÁCH HÀNG (warranty_cards.customer_name) [cite: 129]

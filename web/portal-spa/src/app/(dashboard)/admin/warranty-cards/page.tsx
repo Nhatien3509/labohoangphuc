@@ -1,5 +1,6 @@
 import { listWarranties } from "./_apis/server";
 import { CreateWarrantyDialog } from "./_components/CreateWarrantyDialog";
+import { ImportWarranty } from "./_components/ImportWarranty";
 import { WarrantyTable } from "./_components/WarrantyTable";
 
 // Trang đọc dữ liệu sống từ backend ở mỗi request — không prerender tĩnh.
@@ -18,7 +19,10 @@ export default async function WarrantyCardsPage() {
             Danh sách và phát hành thẻ bảo hành.
           </p>
         </div>
-        <CreateWarrantyDialog />
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportWarranty />
+          <CreateWarrantyDialog />
+        </div>
       </div>
 
       <WarrantyTable items={items} />

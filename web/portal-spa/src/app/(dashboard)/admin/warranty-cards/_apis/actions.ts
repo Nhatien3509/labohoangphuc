@@ -43,6 +43,40 @@ export async function checkCodeAction(
   return { exists: Boolean(res.data?.exists) };
 }
 
+export interface ImportResult {
+  created: number;
+  failed: { code: string; error: string }[];
+}
+
+/**
+ * Server Action: nhập hàng loạt thẻ từ Excel.
+ * Tạo tuần tự từng thẻ qua endpoint có sẵn, gom kết quả để báo cáo từng dòng lỗi.
+ */
+export async function importWarrantiesAction(
+  rows: CreateWarrantyPayload[],
+): Promise<ImportResult> {
+  let created = 0;
+  const failed: { code: string; error: string }[] = [];
+
+  for (const row of rows) {
+    const res = await apiInstance.post<AdminWarranty>("admin/warranty-cards", {
+      auth: true,
+      payload: toBody(row),
+    });
+    if (res.success) {
+      created += 1;
+    } else {
+      failed.push({
+        code: row.code?.trim() || "(trống)",
+        error: res.error ?? "Lỗi không xác định",
+      });
+    }
+  }
+
+  if (created > 0) revalidatePath(LIST_PATH);
+  return { created, failed };
+}
+
 /** Server Action: tạo thẻ bảo hành mới. */
 export async function createWarrantyAction(
   payload: CreateWarrantyPayload,

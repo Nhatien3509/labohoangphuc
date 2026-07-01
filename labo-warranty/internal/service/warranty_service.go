@@ -32,6 +32,9 @@ type WarrantyService interface {
 
 	// Nghiệp vụ dành cho Khách vãng lai tra cứu công khai (có ghi nhật ký bất đồng bộ)
 	PublicLookup(ctx context.Context, code string, ipAddress, userAgent string) (*dto.PublicWarrantyLookupResponse, error)
+
+	// Thống kê tổng quan cho trang dashboard admin
+	GetStats(ctx context.Context) (*dto.WarrantyStatsResponse, error)
 }
 
 type warrantyService struct {
@@ -237,6 +240,35 @@ func (ws *warrantyService) PublicLookup(ctx context.Context, code string, ipAddr
 		clinicName = *card.ClinicName
 	}
 	return ToPublicWarrantyLookupResponse(card, clinicName), nil
+}
+
+func (ws *warrantyService) GetStats(ctx context.Context) (*dto.WarrantyStatsResponse, error) {
+	s, err := ws.wr.Stats(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Dựng chuỗi 12 tháng liên tục (điền 0 cho tháng không có thẻ) và tính luỹ kế.
+	now := time.Now()
+	start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location()).AddDate(0, -11, 0)
+	monthly := make([]dto.WarrantyMonthlyStat, 0, 12)
+	running := s.BaseBefore
+	for i := 0; i < 12; i++ {
+		ym := start.AddDate(0, i, 0).Format("2006-01")
+		n := s.MonthlyNew[ym]
+		running += n
+		monthly = append(monthly, dto.WarrantyMonthlyStat{Month: ym, New: n, Total: running})
+	}
+
+	return &dto.WarrantyStatsResponse{
+		Total:        s.Total,
+		Active:       s.Active,
+		Expired:      s.Expired,
+		Revoked:      s.Revoked,
+		NewThisMonth: s.NewThisMonth,
+		NewThisYear:  s.NewThisYear,
+		Monthly:      monthly,
+	}, nil
 }
 
 func ToPublicWarrantyLookupResponse(card *entities.WarrantyCard, clinicName string) *dto.PublicWarrantyLookupResponse {

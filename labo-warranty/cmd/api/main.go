@@ -83,6 +83,7 @@ func main() {
 		adminGroup.Use(middleware.AuthMiddleware([]byte(jwtSecret)))
 		{
 			adminGroup.GET("/warranty-cards", warrantyHandler.ListCards)
+			adminGroup.GET("/warranty-stats", warrantyHandler.Stats)
 			adminGroup.GET("/check-warranty-code", warrantyHandler.CheckCode)
 			adminGroup.GET("/warranty-cards/:id", warrantyHandler.GetCard)
 			adminGroup.POST("/warranty-cards", warrantyHandler.CreateCard)

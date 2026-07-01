@@ -48,6 +48,18 @@ type PublicWarrantyResponse struct {
 	ExpiryDate     string  `json:"expiry_date"`     // NGÀY HẾT HẠN (Định dạng YYYY-MM-DD) [cite: 129]
 }
 
+// WarrantyStats: dữ liệu thống kê thô lấy từ DB (service sẽ dựng chuỗi 12 tháng).
+type WarrantyStats struct {
+	Total        int
+	Active       int
+	Expired      int
+	Revoked      int
+	NewThisMonth int
+	NewThisYear  int
+	BaseBefore   int            // Số thẻ tạo trước cửa sổ 12 tháng (để tính luỹ kế)
+	MonthlyNew   map[string]int // "YYYY-MM" -> số thẻ tạo mới trong tháng
+}
+
 // WarrantyFilter cấu trúc nhận tham số lọc danh sách cho Admin panel [cite: 148, 545]
 type WarrantyFilter struct {
 	Query     string

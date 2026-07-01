@@ -57,6 +57,15 @@ func (wh *WarrantyHandler) ListCards(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.NewSuccessResponse(res))
 }
 
+func (wh *WarrantyHandler) Stats(c *gin.Context) {
+	res, err := wh.ws.GetStats(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NewErrorResponse("INTERNAL_SERVER_ERROR"))
+		return
+	}
+	c.JSON(http.StatusOK, dto.NewSuccessResponse(res))
+}
+
 func (wh *WarrantyHandler) CheckCode(c *gin.Context) {
 	code := c.Query("code")
 	exists, err := wh.ws.CodeExists(c.Request.Context(), code)

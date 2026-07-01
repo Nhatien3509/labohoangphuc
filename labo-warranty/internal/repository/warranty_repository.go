@@ -20,6 +20,7 @@ type WarrantyRepository interface {
 	UpdateCard(ctx context.Context, card *entities.WarrantyCard) error
 	DeleteCard(ctx context.Context, id string) error
 	LogLookup(ctx context.Context, lookup *entities.WarrantyLookup) error
+	Stats(ctx context.Context) (*entities.WarrantyStats, error)
 }
 
 type warrantyRepository struct {
@@ -242,4 +243,51 @@ func (wr *warrantyRepository) LogLookup(ctx context.Context, lookup *entities.Wa
 	}
 
 	return nil
+}
+
+// Stats trả về các con số tổng hợp + số thẻ tạo mới theo từng tháng (12 tháng gần nhất).
+func (wr *warrantyRepository) Stats(ctx context.Context) (*entities.WarrantyStats, error) {
+	s := &entities.WarrantyStats{MonthlyNew: make(map[string]int)}
+
+	// Gộp toàn bộ số đếm vào 1 query bằng FILTER của PostgreSQL.
+	countQuery := `
+		SELECT
+			count(*)                                                                          AS total,
+			count(*) FILTER (WHERE status = 'active')                                         AS active,
+			count(*) FILTER (WHERE status = 'expired')                                        AS expired,
+			count(*) FILTER (WHERE status = 'revoked')                                        AS revoked,
+			count(*) FILTER (WHERE created_at >= date_trunc('month', now()))                  AS new_month,
+			count(*) FILTER (WHERE created_at >= date_trunc('year', now()))                   AS new_year,
+			count(*) FILTER (WHERE created_at <  date_trunc('month', now()) - interval '11 months') AS base_before
+		FROM warranty_cards
+	`
+	if err := wr.db.QueryRowContext(ctx, countQuery).Scan(
+		&s.Total, &s.Active, &s.Expired, &s.Revoked,
+		&s.NewThisMonth, &s.NewThisYear, &s.BaseBefore,
+	); err != nil {
+		return nil, err
+	}
+
+	// Số thẻ tạo mới theo tháng trong cửa sổ 12 tháng gần nhất.
+	monthlyQuery := `
+		SELECT to_char(date_trunc('month', created_at), 'YYYY-MM') AS ym, count(*)
+		FROM warranty_cards
+		WHERE created_at >= date_trunc('month', now()) - interval '11 months'
+		GROUP BY ym
+	`
+	rows, err := wr.db.QueryContext(ctx, monthlyQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var ym string
+		var n int
+		if err := rows.Scan(&ym, &n); err != nil {
+			return nil, err
+		}
+		s.MonthlyNew[ym] = n
+	}
+	return s, rows.Err()
 }
