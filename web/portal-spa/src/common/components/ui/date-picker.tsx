@@ -151,7 +151,14 @@ export function DatePicker({
                 top: coords.top,
                 left: coords.left,
                 width: PANEL_W,
+                // Dialog modal của Radix đặt pointer-events:none lên body; panel
+                // portal ra body nên phải bật lại để click chọn ngày hoạt động.
+                pointerEvents: "auto",
               }}
+              // Chặn sự kiện lan ra document để Radix Dialog không hiểu nhầm là
+              // "bấm ra ngoài" mà tự đóng khi ta thao tác trên lịch (portal ở body).
+              onPointerDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
               className="z-[60] animate-fade-up rounded-lg border border-border bg-background p-3 text-foreground shadow-lg"
             >
               {/* Điều hướng tháng */}

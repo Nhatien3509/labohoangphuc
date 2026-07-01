@@ -54,7 +54,7 @@ export default async function TraCuuPage({
       {/* HERO */}
       <section className="bg-hero-ink px-6 py-20 text-white">
         <div className="mx-auto max-w-container">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <div>
               <h1 className="text-4xl font-bold leading-tight md:text-[44px]">
                 Tra cứu <span className="text-brand">Thẻ Bảo hành</span>

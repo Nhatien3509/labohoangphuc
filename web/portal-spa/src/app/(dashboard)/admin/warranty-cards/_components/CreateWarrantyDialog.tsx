@@ -181,7 +181,7 @@ export function CreateWarrantyDialog() {
               type="number"
               min={1}
               {...register("warranty_years")}
-              placeholder="7"
+              placeholder="Nhập số năm bảo hành, vd 3"
             />
           </Field>
           <Field label="Ngày phát hành" required error={errors.issue_date?.message}>

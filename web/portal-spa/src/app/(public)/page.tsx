@@ -78,7 +78,7 @@ export default function HomePage() {
       {/* HERO */}
       <section className="bg-hero-soft px-6 py-20">
         <div className="mx-auto max-w-container">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <div>
               <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl">
                 Trung tâm Phục Hình <span className="text-brand">Răng</span>

@@ -110,3 +110,21 @@
     );
   }
 }
+
+/* Hiệu ứng tuyết bay từ dưới lên (dùng ở panel đăng nhập) */
+@keyframes snow-rise {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--flake-op, 0.7);
+  }
+  88% {
+    opacity: var(--flake-op, 0.7);
+  }
+  100% {
+    transform: translateY(-108vh) translateX(var(--drift, 0px));
+    opacity: 0;
+  }
+}
