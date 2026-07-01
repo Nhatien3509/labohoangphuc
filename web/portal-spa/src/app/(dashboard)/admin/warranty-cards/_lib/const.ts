@@ -5,14 +5,15 @@ export const createWarrantySchema = z.object({
   // Mã thẻ bắt buộc, nhập tuỳ ý (không ràng buộc định dạng).
   code: z.string().trim().min(1, "Bắt buộc nhập mã thẻ"),
   customer_name: z.string().min(1, "Bắt buộc nhập tên khách hàng"),
-  customer_phone: z.string().min(1, "Bắt buộc nhập số điện thoại"),
+  clinic_name: z.string().min(1, "Bắt buộc nhập tên nha khoa"),
   lab_name: z.string().min(1, "Bắt buộc nhập tên Lab"),
   // Nhập "11, 12, 21" -> chuẩn hoá thành number[] khi submit.
   tooth_positions: z.string().min(1, "Bắt buộc nhập vị trí răng"),
-  warranty_months: z.coerce
+  // Người dùng nhập theo NĂM; backend lưu theo tháng (năm × 12) khi submit.
+  warranty_years: z.coerce
     .number()
-    .int("Số tháng phải là số nguyên")
-    .min(1, "Số tháng bảo hành tối thiểu là 1"),
+    .int("Số năm phải là số nguyên")
+    .min(1, "Số năm bảo hành tối thiểu là 1"),
   issue_date: z.string().min(1, "Bắt buộc chọn ngày phát hành"),
   note: z.string().optional(),
 });
@@ -33,8 +34,15 @@ export const WARRANTY_STATUS_OPTIONS = [
   { value: "revoked", label: "Đã thu hồi" },
 ] as const;
 
-export const DEFAULT_LAB_NAME = "Lab Hà Nội";
-export const DEFAULT_WARRANTY_MONTHS = 84;
+/** Năm -> tháng (backend lưu theo tháng). */
+export function yearsToMonths(years: number): number {
+  return Math.round(years * 12);
+}
+
+/** Tháng -> năm để hiển thị (làm tròn, tối thiểu 1 năm cho dữ liệu cũ). */
+export function monthsToYears(months: number): number {
+  return Math.max(1, Math.round(months / 12));
+}
 
 /** "11, 12, 21" -> [11, 12, 21]. */
 export function parseToothPositions(raw: string): number[] {

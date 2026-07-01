@@ -39,12 +39,13 @@ VALUES (
 
 -- Một thẻ bảo hành mẫu để tra cứu công khai ngay: mã BH-20260001.
 INSERT INTO warranty_cards (
-    code, customer_name, customer_phone, clinic_id, product_id, lab_name,
+    code, customer_name, customer_phone, clinic_name, clinic_id, product_id, lab_name,
     tooth_positions, warranty_months, issue_date, expiry_date, status, note, created_by
 ) VALUES (
     'BH-20260001',
     'Nguyễn Văn A',
     '0911222333',
+    'Nha khoa Smile',
     '22222222-2222-2222-2222-222222222222',
     '11111111-1111-1111-1111-111111111111',
     'Lab Hà Nội',

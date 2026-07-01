@@ -25,6 +25,7 @@ import {
 
 import { deleteWarrantyAction } from "../_apis/actions";
 import type { AdminWarranty, WarrantyStatus } from "../_apis/types";
+import { monthsToYears } from "../_lib/const";
 import { EditWarrantyDialog } from "./EditWarrantyDialog";
 
 const STATUS_VARIANT: Record<
@@ -62,13 +63,16 @@ function DetailDialog({ item }: { item: AdminWarranty }) {
         <div className="mt-2">
           <Row label="Mã thẻ" value={item.code} />
           <Row label="Khách hàng" value={item.customer_name} />
-          <Row label="Số điện thoại" value={item.customer_phone || "—"} />
+          <Row label="Nha khoa" value={item.clinic_name || "—"} />
           <Row label="Lab" value={item.lab_name || "—"} />
           <Row
             label="Vị trí răng"
             value={item.tooth_positions?.join(", ") || "—"}
           />
-          <Row label="Số tháng bảo hành" value={item.warranty_months} />
+          <Row
+            label="Thời gian bảo hành"
+            value={`${monthsToYears(item.warranty_months)} năm`}
+          />
           <Row label="Ngày phát hành" value={formatDate(item.issue_date)} />
           <Row label="Ngày hết hạn" value={formatDate(item.expiry_date)} />
           <Row

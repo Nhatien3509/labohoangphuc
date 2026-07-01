@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS warranty_cards (
     code TEXT UNIQUE NOT NULL, -- 🌟 BẮT BUỘC PHẢI UNIQUE để bảng lookups nối vào được
     customer_name TEXT NOT NULL,
     customer_phone TEXT,
+    clinic_name TEXT, -- Tên nha khoa nhập tự do (thay cho số điện thoại trên form phát hành)
     clinic_id UUID REFERENCES clinics(id) ON DELETE SET NULL,
     product_id UUID REFERENCES products(id) ON DELETE SET NULL,
     lab_name TEXT,
@@ -121,6 +122,7 @@ ALTER TABLE clinics        ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAU
 ALTER TABLE clinics        ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE warranty_cards ADD COLUMN IF NOT EXISTS quantity INT NOT NULL DEFAULT 1;
 ALTER TABLE warranty_cards ADD COLUMN IF NOT EXISTS note TEXT;
+ALTER TABLE warranty_cards ADD COLUMN IF NOT EXISTS clinic_name TEXT;
 ALTER TABLE warranty_cards ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;
 
 -- Cho phép sửa mã thẻ: khoá ngoại lịch sử tra cứu cascade theo cả UPDATE lẫn DELETE

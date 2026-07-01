@@ -58,7 +58,7 @@ func (ws *warrantyService) CreateCard(ctx context.Context, req *dto.AdminCreateW
 	cardEntity := &entities.WarrantyCard{
 		Code:           code,
 		CustomerName:   req.CustomerName,
-		CustomerPhone:  &req.CustomerPhone,
+		ClinicName:     &req.ClinicName,
 		LabName:        req.LabName,
 		ToothPositions: pq.Int64Array(req.ToothPositions),
 		WarrantyMonths: warrantyMonths,
@@ -133,7 +133,7 @@ func (ws *warrantyService) UpdateCard(ctx context.Context, id string, req *dto.A
 
 	card.Code = strings.TrimSpace(req.Code)
 	card.CustomerName = req.CustomerName
-	card.CustomerPhone = &req.CustomerPhone
+	card.ClinicName = &req.ClinicName
 	card.LabName = req.LabName
 	card.ToothPositions = pq.Int64Array(req.ToothPositions)
 	card.WarrantyMonths = warrantyMonths
@@ -176,8 +176,8 @@ func ToAdminWarrantyResponse(m *entities.WarrantyCard) *dto.AdminWarrantyRespons
 
 	// Kiểm tra an toàn các trường kiểu con trỏ (có thể mang giá trị NULL trong DB)
 	// trước khi gọi hàm lấy dữ liệu để tránh lỗi "nil pointer dereference" (panic sập nguồn Go)
-	if m.CustomerPhone != nil {
-		res.CustomerPhone = *m.CustomerPhone
+	if m.ClinicName != nil {
+		res.ClinicName = *m.ClinicName
 	}
 
 	if m.CreatedBy != nil {
@@ -231,7 +231,11 @@ func (ws *warrantyService) PublicLookup(ctx context.Context, code string, ipAddr
 		return nil, errs.ErrCardNotFound
 	}
 
-	clinicName := "Nha khoa Smile" // Du lieu tam
+	// Tên nha khoa lấy trực tiếp từ thẻ (trường nhập tự do trên form phát hành).
+	clinicName := ""
+	if card.ClinicName != nil {
+		clinicName = *card.ClinicName
+	}
 	return ToPublicWarrantyLookupResponse(card, clinicName), nil
 }
 

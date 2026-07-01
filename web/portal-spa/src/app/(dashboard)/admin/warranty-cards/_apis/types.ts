@@ -10,7 +10,7 @@ export type WarrantyStatus = "active" | "expired" | "revoked";
 export interface CreateWarrantyPayload {
   code?: string; // mã thẻ; để trống thì BE tự sinh
   customer_name: string;
-  customer_phone: string;
+  clinic_name: string; // NHA KHOA (nhập tự do, thay cho số điện thoại)
   lab_name: string;
   tooth_positions: number[];
   warranty_months: number; // số tháng bảo hành
@@ -28,7 +28,7 @@ export interface AdminWarranty {
   id: string;
   code: string;
   customer_name: string;
-  customer_phone: string;
+  clinic_name: string;
   lab_name: string;
   tooth_positions: number[];
   warranty_months: number;

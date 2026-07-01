@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS warranty_cards (
     code TEXT UNIQUE NOT NULL,
     customer_name TEXT NOT NULL,
     customer_phone TEXT,
+    clinic_name TEXT,
     clinic_id UUID REFERENCES clinics(id) ON DELETE SET NULL,
     product_id UUID REFERENCES products(id) ON DELETE SET NULL,
     lab_name TEXT,

@@ -9,7 +9,7 @@ import (
 type AdminCreateWarrantyRequest struct {
 	Code           string    `json:"code" binding:"required"` // Mã thẻ do admin nhập (bắt buộc)
 	CustomerName   string    `json:"customer_name" binding:"required"`
-	CustomerPhone  string    `json:"customer_phone" binding:"required"`
+	ClinicName     string    `json:"clinic_name" binding:"required"`             // NHA KHOA (nhập tự do, thay cho số điện thoại)
 	LabName        string    `json:"lab_name" binding:"required"`               // Thường mặc định là "Lab Hà Nội"
 	ToothPositions []int64   `json:"tooth_positions" binding:"required"`        // Mảng các vị trí răng [11, 12, 21]
 	WarrantyMonths int       `json:"warranty_months" binding:"omitempty,min=1"` // Số tháng bảo hành; bỏ trống -> mặc định 84
@@ -26,7 +26,7 @@ type CodeCheckResponse struct {
 type AdminUpdateWarrantyRequest struct {
 	Code           string                  `json:"code" binding:"required"`
 	CustomerName   string                  `json:"customer_name" binding:"required"`
-	CustomerPhone  string                  `json:"customer_phone" binding:"required"`
+	ClinicName     string                  `json:"clinic_name" binding:"required"`
 	LabName        string                  `json:"lab_name" binding:"required"`
 	ToothPositions []int64                 `json:"tooth_positions" binding:"required"`
 	WarrantyMonths int                     `json:"warranty_months" binding:"omitempty,min=1"`
@@ -40,7 +40,7 @@ type AdminWarrantyResponse struct {
 	ID             string                  `json:"id"`
 	Code           string                  `json:"code"`
 	CustomerName   string                  `json:"customer_name"`
-	CustomerPhone  string                  `json:"customer_phone"`
+	ClinicName     string                  `json:"clinic_name"`
 	LabName        string                  `json:"lab_name"`
 	ToothPositions []int64                 `json:"tooth_positions"`
 	WarrantyMonths int                     `json:"warranty_months"` // Đã snapshot tại thời điểm phát hành

@@ -21,6 +21,7 @@ type WarrantyCard struct {
 	Code           string         `db:"code" json:"code"`
 	CustomerName   string         `db:"customer_name" json:"customer_name"`
 	CustomerPhone  *string        `db:"customer_phone" json:"-"` // Ẩn hoàn toàn khỏi JSON khi public tra cứu [cite: 493, 567]
+	ClinicName     *string        `db:"clinic_name" json:"clinic_name,omitempty"` // Tên nha khoa nhập tự do trên form phát hành
 	ClinicID       *uuid.UUID     `db:"clinic_id" json:"clinic_id,omitempty"`
 	ProductID      *uuid.UUID     `db:"product_id" json:"product_id,omitempty"`
 	LabName        string         `db:"lab_name" json:"lab_name"`

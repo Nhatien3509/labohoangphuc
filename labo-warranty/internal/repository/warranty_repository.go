@@ -91,10 +91,10 @@ func (wr *warrantyRepository) CreateCard(ctx context.Context, card *entities.War
 	// 2. Câu lệnh INSERT (Đã bổ sung cột 'note' để khớp với tầng Service)
 	insertQuery := `
        INSERT INTO warranty_cards (
-          code, customer_name, customer_phone, clinic_id, product_id, 
+          code, customer_name, customer_phone, clinic_name, clinic_id, product_id,
           lab_name, tooth_positions, warranty_months, issue_date, expiry_date, status, created_by, note
        ) VALUES (
-          :code, :customer_name, :customer_phone, :clinic_id, :product_id, 
+          :code, :customer_name, :customer_phone, :clinic_name, :clinic_id, :product_id,
           :lab_name, :tooth_positions, :warranty_months, :issue_date, :expiry_date, :status, :created_by, :note
        ) RETURNING id, created_at, updated_at
     `
@@ -161,6 +161,7 @@ func (wr *warrantyRepository) UpdateCard(ctx context.Context, card *entities.War
 			code = :code,
 			customer_name = :customer_name,
 			customer_phone = :customer_phone,
+			clinic_name = :clinic_name,
 			lab_name = :lab_name,
 			tooth_positions = :tooth_positions,
 			warranty_months = :warranty_months,

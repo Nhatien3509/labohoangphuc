@@ -57,7 +57,9 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">
+              Email<span className="text-destructive"> *</span>
+            </Label>
             <Input
               id="email"
               type="email"
@@ -69,7 +71,9 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
             ) : null}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password">Mật khẩu</Label>
+            <Label htmlFor="password">
+              Mật khẩu<span className="text-destructive"> *</span>
+            </Label>
             <Input
               id="password"
               type="password"

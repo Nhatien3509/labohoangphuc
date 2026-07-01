@@ -58,9 +58,9 @@ function ChangePasswordDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" title="Đổi mật khẩu">
           <KeyRound className="h-4 w-4" />
-          Đổi mật khẩu
+          <span className="hidden sm:inline">Đổi mật khẩu</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
@@ -73,7 +73,9 @@ function ChangePasswordDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="old_password">Mật khẩu hiện tại</Label>
+            <Label htmlFor="old_password">
+              Mật khẩu hiện tại<span className="text-destructive"> *</span>
+            </Label>
             <Input
               id="old_password"
               type="password"
@@ -87,7 +89,9 @@ function ChangePasswordDialog() {
             ) : null}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="new_password">Mật khẩu mới</Label>
+            <Label htmlFor="new_password">
+              Mật khẩu mới<span className="text-destructive"> *</span>
+            </Label>
             <Input
               id="new_password"
               type="password"
@@ -101,7 +105,9 @@ function ChangePasswordDialog() {
             ) : null}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="confirm_password">Xác nhận mật khẩu mới</Label>
+            <Label htmlFor="confirm_password">
+              Xác nhận mật khẩu mới<span className="text-destructive"> *</span>
+            </Label>
             <Input
               id="confirm_password"
               type="password"
@@ -146,7 +152,7 @@ export function UserMenu({ role }: { role?: string }) {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5 sm:gap-2">
       {role ? (
         <span className="hidden text-xs text-muted-foreground sm:inline">
           {role}
@@ -158,9 +164,12 @@ export function UserMenu({ role }: { role?: string }) {
         size="sm"
         onClick={onLogout}
         disabled={pending}
+        title="Đăng xuất"
       >
         <LogOut className="h-4 w-4" />
-        {pending ? "Đang thoát..." : "Đăng xuất"}
+        <span className="hidden sm:inline">
+          {pending ? "Đang thoát..." : "Đăng xuất"}
+        </span>
       </Button>
     </div>
   );
